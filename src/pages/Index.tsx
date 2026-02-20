@@ -25,17 +25,14 @@ const Index = () => {
   const [agentPanelOpen, setAgentPanelOpen] = useState(true);
   const [openProjects, setOpenProjects] = useState<string[]>(() => {
     const stored = sessionStorage.getItem("openProjects");
-    return stored ? JSON.parse(stored) : [projectId || "nexus-platform"];
-  });
-
-  // Ensure current project is always in open list
-  useEffect(() => {
-    if (projectId && !openProjects.includes(projectId)) {
-      const updated = [...openProjects, projectId];
-      setOpenProjects(updated);
-      sessionStorage.setItem("openProjects", JSON.stringify(updated));
+    const existing: string[] = stored ? JSON.parse(stored) : [];
+    const current = projectId || "nexus-platform";
+    if (!existing.includes(current)) {
+      existing.push(current);
     }
-  }, [projectId]);
+    sessionStorage.setItem("openProjects", JSON.stringify(existing));
+    return existing;
+  });
 
   const handleOpenProjectsChange = (projects: string[]) => {
     setOpenProjects(projects);
