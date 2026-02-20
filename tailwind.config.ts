@@ -97,6 +97,10 @@ export default {
           "50%": { transform: "scale(1.35)", opacity: "0" },
           "100%": { transform: "scale(1.35)", opacity: "0" },
         },
+        "notif-blink": {
+          "0%, 100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.3", transform: "scale(0.75)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -107,6 +111,7 @@ export default {
         "pulse-dot": "pulse-dot 1.5s ease-in-out infinite",
         "pixel-glow": "pixel-glow 2s ease-in-out infinite",
         "agent-pulse": "agent-pulse 1.5s ease-out infinite",
+        "notif-blink": "notif-blink 1s ease-in-out infinite",
       },
     },
   },
