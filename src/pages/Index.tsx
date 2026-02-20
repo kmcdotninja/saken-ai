@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import Sidebar from "@/components/Sidebar";
 import FileExplorer from "@/components/FileExplorer";
 import CodeEditor from "@/components/CodeEditor";
@@ -11,14 +12,35 @@ import DeploymentsPanel from "@/components/DeploymentsPanel";
 import KanbanBoard from "@/components/KanbanBoard";
 import TopBar from "@/components/TopBar";
 import CommandPalette from "@/components/CommandPalette";
+import NotificationPanel from "@/components/NotificationPanel";
 
 const Index = () => {
+  const { id: projectId } = useParams();
   const [activeView, setActiveView] = useState("board");
   const [activeFile, setActiveFile] = useState("Dashboard.tsx");
   const [tabs, setTabs] = useState(["Dashboard.tsx", "api.ts", "App.tsx"]);
   const [activeTab, setActiveTab] = useState("Dashboard.tsx");
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const [agentPanelOpen, setAgentPanelOpen] = useState(true);
+  const [openProjects, setOpenProjects] = useState<string[]>(() => {
+    const stored = sessionStorage.getItem("openProjects");
+    return stored ? JSON.parse(stored) : [projectId || "nexus-platform"];
+  });
+
+  // Ensure current project is always in open list
+  useEffect(() => {
+    if (projectId && !openProjects.includes(projectId)) {
+      const updated = [...openProjects, projectId];
+      setOpenProjects(updated);
+      sessionStorage.setItem("openProjects", JSON.stringify(updated));
+    }
+  }, [projectId]);
+
+  const handleOpenProjectsChange = (projects: string[]) => {
+    setOpenProjects(projects);
+    sessionStorage.setItem("openProjects", JSON.stringify(projects));
+  };
 
   const toggleCmd = useCallback(() => setCmdOpen((v) => !v), []);
 
@@ -96,15 +118,21 @@ const Index = () => {
 
   return (
     <div className="flex h-screen bg-surface-0 overflow-hidden">
-      <Sidebar active={activeView} onNavigate={setActiveView} />
+      <Sidebar active={activeView} onNavigate={setActiveView} openProjects={openProjects} onOpenProjectsChange={handleOpenProjectsChange} />
       <div className="flex-1 flex flex-col min-w-0">
-        <TopBar currentBranch="feat/dashboard-redesign" activeView={activeView} onSearchClick={() => setCmdOpen(true)} />
+        <TopBar
+          currentBranch="feat/dashboard-redesign"
+          activeView={activeView}
+          onSearchClick={() => setCmdOpen(true)}
+          onNotificationClick={() => setNotifOpen(true)}
+        />
         <div className="flex flex-1 min-h-0">
           {renderMainContent()}
           {renderRightPanel()}
         </div>
       </div>
       <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
+      <NotificationPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
     </div>
   );
 };
