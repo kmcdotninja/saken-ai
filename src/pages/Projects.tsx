@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import logoSaken from "@/assets/logo-saken.png";
 import ProfileSettingsPanel from "@/components/ProfileSettingsPanel";
 import PxIcon from "@/components/PxIcon";
+import { toast } from "sonner";
 
 const statusConfig: Record<string, { icon: string; cls: string; bg: string; label: string }> = {
   active: { icon: "check", cls: "text-success", bg: "bg-success/10", label: "Active" },
@@ -22,7 +23,7 @@ interface Project {
   status: "active" | "paused" | "archived";
 }
 
-const projects: Project[] = [
+const defaultProjects: Project[] = [
   {
     id: "nexus-platform",
     name: "Nexus Platform",
@@ -75,6 +76,83 @@ const projects: Project[] = [
   },
 ];
 
+function NewProjectModal({ onClose, onCreate }: { onClose: () => void; onCreate: (p: Project) => void }) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+
+  const handleSubmit = () => {
+    if (!name.trim()) return;
+    const id = name.trim().toLowerCase().replace(/\s+/g, "-");
+    onCreate({
+      id,
+      name: name.trim(),
+      description: description.trim() || "No description provided.",
+      lastUpdated: "just now",
+      agents: 0,
+      branches: 1,
+      deploys: 0,
+      status: "active",
+    });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-card border border-border w-full max-w-md p-6 shadow-lg animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <PxIcon icon="plus" size={14} />
+            New Project
+          </h2>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <PxIcon icon="close" size={14} />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1.5">Project Name</label>
+            <input
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              placeholder="My Awesome Project"
+              className="w-full px-3 py-2 text-xs bg-muted border border-border text-foreground placeholder:text-muted-foreground outline-none focus:border-foreground/30"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1.5">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Brief description of your project..."
+              rows={3}
+              className="w-full px-3 py-2 text-xs bg-muted border border-border text-foreground placeholder:text-muted-foreground outline-none focus:border-foreground/30 resize-none"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2 mt-6">
+          <button
+            onClick={onClose}
+            className="px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground border border-border hover:bg-accent"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={!name.trim()}
+            className="px-3 py-1.5 text-xs bg-foreground text-background hover:bg-foreground/90 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Create Project
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 function ProjectCard({ project, onClick }: { project: Project; onClick: () => void }) {
   return (
     <div
@@ -193,11 +271,20 @@ export default function Projects() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [newProjectOpen, setNewProjectOpen] = useState(false);
+  const [projectList, setProjectList] = useState<Project[]>(defaultProjects);
   const navigate = useNavigate();
 
-  const filtered = projects.filter((p) =>
+  const filtered = projectList.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleCreateProject = (p: Project) => {
+    setProjectList((prev) => [p, ...prev]);
+    toast.success("Project created", {
+      description: p.name,
+    });
+  };
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
@@ -224,7 +311,7 @@ export default function Projects() {
           <div className="flex items-center gap-2">
             <PxIcon icon="zap" size={16} className="text-foreground" />
             <span className="text-sm font-semibold text-foreground">Projects</span>
-            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5">{projects.length}</span>
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5">{projectList.length}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-0 bg-muted border border-border">
@@ -241,7 +328,7 @@ export default function Projects() {
                 <PxIcon icon="list" size={14} />
               </button>
             </div>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-foreground text-background hover:bg-foreground/90">
+            <button onClick={() => setNewProjectOpen(true)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-foreground text-background hover:bg-foreground/90">
               <PxIcon icon="plus" size={12} /> New Project
             </button>
           </div>
@@ -279,6 +366,7 @@ export default function Projects() {
         </div>
       </div>
       {profileOpen && <ProfileSettingsPanel onClose={() => setProfileOpen(false)} />}
+      {newProjectOpen && <NewProjectModal onClose={() => setNewProjectOpen(false)} onCreate={handleCreateProject} />}
     </div>
   );
 }
