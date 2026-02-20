@@ -41,7 +41,7 @@ export default function AgentCollapsedStrip({ onExpand }: Props) {
               />
               {/* Status dot */}
               <span
-                className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card z-20 bg-success"
+                className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card z-20 bg-primary"
               />
             </div>
 
