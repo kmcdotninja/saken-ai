@@ -5,8 +5,8 @@ import {
 } from "lucide-react";
 
 const navItems = [
+  { icon: LayoutDashboard, label: "Board", id: "board" },
   { icon: Code2, label: "Editor", id: "editor" },
-  { icon: LayoutDashboard, label: "Issues", id: "issues" },
   { icon: GitBranch, label: "Git", id: "git" },
   { icon: Rocket, label: "Deployments", id: "deployments" },
 ];
