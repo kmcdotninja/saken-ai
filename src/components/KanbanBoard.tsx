@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
-import { columns as initialColumns, agents, type KanbanCard as CardType, type KanbanColumn } from "@/data/kanban-data";
+import { agents, type KanbanCard as CardType, type KanbanColumn, projectColumns } from "@/data/kanban-data";
+import { projectViewData } from "@/data/project-data";
 import IssueModal from "./IssueModal";
 import PxIcon from "./PxIcon";
 
@@ -138,10 +139,23 @@ function ListRow({ card, onClick }: { card: CardType; onClick: () => void }) {
   );
 }
 
-export default function KanbanBoard() {
+interface Props {
+  projectId: string;
+}
+
+export default function KanbanBoard({ projectId }: Props) {
+  const initialColumns = projectColumns[projectId] || projectColumns["nexus-platform"];
+  const viewData = projectViewData[projectId] || projectViewData["nexus-platform"];
+
   const [cols, setCols] = useState<KanbanColumn[]>(initialColumns);
   const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
+
+  // Reset when project changes
+  useEffect(() => {
+    setCols(projectColumns[projectId] || projectColumns["nexus-platform"]);
+    setSelectedCard(null);
+  }, [projectId]);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -172,7 +186,7 @@ export default function KanbanBoard() {
       {/* Board header */}
       <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
         <div className="flex items-center gap-3">
-          <h2 className="text-base font-semibold text-foreground">Sprint 14 — Platform Core</h2>
+          <h2 className="text-base font-semibold text-foreground">{viewData.sprintTitle}</h2>
           <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5">
             {cols.reduce((acc, c) => acc + c.cards.length, 0)} issues
           </span>
