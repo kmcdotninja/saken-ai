@@ -70,7 +70,7 @@ export default function Sidebar({ active, onNavigate, openProjects = [], onOpenP
       </div>
 
       {/* Open project tabs */}
-      {openProjectObjects.length > 1 && (
+      {openProjectObjects.length > 0 && (
         <>
           <div className="mx-3 border-t border-border" />
           <div className="flex flex-col items-center gap-1 py-2">
