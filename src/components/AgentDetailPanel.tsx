@@ -295,14 +295,14 @@ export default function AgentDetailPanel({ agent, onBack }: Props) {
                           }`}
                         />
                         {isHovered && (
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1.5 bg-foreground text-background text-[10px] whitespace-nowrap z-30 pointer-events-none animate-fade-in shadow-lg">
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-background border border-border text-foreground text-[10px] whitespace-nowrap z-30 pointer-events-none animate-fade-in shadow-lg">
                             <div className="font-semibold">{dayLabels[ri]} {hourLabels[ci]}:00</div>
-                            <div className="flex items-center gap-2 mt-0.5">
+                            <div className="flex items-center gap-2 mt-0.5 text-muted-foreground">
                               <span>{activityLevel}</span>
                               <span>·</span>
                               <span>{commits} commits</span>
                             </div>
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-foreground" />
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-border" />
                           </div>
                         )}
                       </div>
