@@ -5,9 +5,11 @@ interface Props {
   currentBranch: string;
   activeView: string;
   onSearchClick?: () => void;
+  onNotificationClick?: () => void;
+  hasUnread?: boolean;
 }
 
-export default function TopBar({ currentBranch, activeView, onSearchClick }: Props) {
+export default function TopBar({ currentBranch, activeView, onSearchClick, onNotificationClick, hasUnread = true }: Props) {
   return (
     <div className="flex items-center justify-between h-12 px-4 bg-card border-b border-border">
       {/* Left: project + branch */}
@@ -33,9 +35,13 @@ export default function TopBar({ currentBranch, activeView, onSearchClick }: Pro
         <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-success/10 text-success hover:bg-success/20">
           <PxIcon icon="cloud-upload" size={12} /> Deploy
         </button>
-        <button className="relative p-2 text-muted-foreground hover:text-foreground hover:bg-accent">
+        <button
+          onClick={onNotificationClick}
+          className="relative p-2 text-muted-foreground hover:text-foreground hover:bg-accent"
+          title="Notifications"
+        >
           <PxIcon icon="notification" size={16} />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-foreground rounded-full" />
+          {hasUnread && <span className="absolute top-1 right-1 w-2 h-2 bg-foreground rounded-full" />}
         </button>
       </div>
     </div>
