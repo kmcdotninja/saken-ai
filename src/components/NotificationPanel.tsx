@@ -202,7 +202,7 @@ export default function NotificationPanel({ open, onClose }: Props) {
               >
                 {tab.label}
                 {tabUnread > 0 && (
-                  <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-[9px] font-bold bg-success text-success-foreground rounded-full animate-notif-blink">
+                  <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-[9px] font-bold bg-success text-success-foreground rounded-full">
                     {tabUnread}
                   </span>
                 )}
