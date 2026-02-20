@@ -18,8 +18,8 @@ export const agents: Agent[] = [
     name: "Vlad",
     role: "Code Agent",
     avatar: avatarVlad,
-    color: "text-primary",
-    statusColor: "bg-primary",
+    color: "text-foreground",
+    statusColor: "bg-foreground",
     status: "working",
   },
   {
@@ -48,11 +48,11 @@ export interface KanbanCard {
   description: string;
   priority: "urgent" | "high" | "medium" | "low";
   labels: string[];
-  assignee: string; // agent id
+  assignee: string;
   points?: number;
   subtasks?: { done: number; total: number };
   comments?: number;
-  agentAction?: string; // what the agent is currently doing
+  agentAction?: string;
 }
 
 export interface KanbanColumn {
