@@ -1,50 +1,58 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import PxIcon from "./PxIcon";
+import { agents } from "@/data/kanban-data";
+import { getChatForFile, getResponsesForFile } from "@/data/agent-chat-data";
 
 interface Message {
   role: "user" | "agent";
+  agentId?: string;
   content: string;
   timestamp: string;
 }
-
-const initialMessages: Message[] = [
-  {
-    role: "agent",
-    content: "I've analyzed the codebase and found 3 issues in the Dashboard component. I'll fix the type errors and optimize the data fetching pattern.",
-    timestamp: "2 min ago",
-  },
-  {
-    role: "user",
-    content: "Can you also add error boundaries and loading states?",
-    timestamp: "1 min ago",
-  },
-  {
-    role: "agent",
-    content: "On it! I'm implementing:\n\n1. ErrorBoundary wrapper component\n2. Skeleton loading states for ProjectCard\n3. Toast notifications for API errors\n\nUpdating 3 files...",
-    timestamp: "just now",
-  },
-];
-
-const agentResponses = [
-  "I've reviewed the code and here's my analysis:\n\n1. The component structure looks clean\n2. I'd recommend memoizing the data transformation\n3. Adding a retry mechanism would improve reliability\n\nWant me to implement these changes?",
-  "Done! I've made the following updates:\n\n- Added `React.memo` to `ProjectCard`\n- Wrapped API calls with `useCallback`\n- Implemented exponential backoff for retries\n\nAll tests passing ✓",
-  "Good question. The best approach here would be to:\n\n1. Extract the logic into a custom hook\n2. Use `useSyncExternalStore` for the state management\n3. Add proper TypeScript generics for type safety\n\nI can scaffold this out for you.",
-  "I found a potential performance issue. The `useEffect` dependency array is causing unnecessary re-renders. I'll optimize it by:\n\n- Moving the callback outside the effect\n- Using a ref to track the previous value\n- Adding proper cleanup\n\nFixing now...",
-  "Here's a breakdown of the deployment pipeline:\n\n1. Build → TypeScript compilation + Vite bundling\n2. Test → Unit + Integration test suite\n3. Stage → Preview environment validation\n4. Deploy → Multi-region rollout with health checks\n\nEverything looks healthy ✓",
-  "I've set up the error boundaries:\n\n```tsx\n<ErrorBoundary fallback={<ErrorFallback />}>\n  <Dashboard />\n</ErrorBoundary>\n```\n\nThis will catch rendering errors and display a friendly error message with a retry button.",
-];
 
 function getTimestamp(): string {
   return "just now";
 }
 
-export default function AgentPanel({ onCollapse }: { onCollapse?: () => void }) {
+interface Props {
+  onCollapse?: () => void;
+  activeFile?: string;
+}
+
+export default function AgentPanel({ onCollapse, activeFile }: Props) {
+  const currentFile = activeFile || "_default";
+  const fileChat = useMemo(() => getChatForFile(currentFile), [currentFile]);
+  const responses = useMemo(() => getResponsesForFile(currentFile), [currentFile]);
+
+  // Build initial messages from file-specific chat data
+  const initialMessages = useMemo<Message[]>(() => {
+    return fileChat.messages.map((m) => ({
+      role: "agent" as const,
+      agentId: m.agentId,
+      content: m.content,
+      timestamp: m.timestamp,
+    }));
+  }, [fileChat]);
+
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [typingAgentId, setTypingAgentId] = useState<string | null>(null);
   const [displayedContent, setDisplayedContent] = useState("");
+  const [agentConvoMessages, setAgentConvoMessages] = useState<Message[]>([]);
+  const [agentConvoIdx, setAgentConvoIdx] = useState(0);
+  const [agentTyping, setAgentTyping] = useState<string | null>(null); // agent id currently "typing"
   const scrollRef = useRef<HTMLDivElement>(null);
   const responseIdx = useRef(0);
+  const agentConvoTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  // Reset messages when file changes
+  useEffect(() => {
+    setMessages(initialMessages);
+    setAgentConvoMessages([]);
+    setAgentConvoIdx(0);
+    responseIdx.current = 0;
+  }, [initialMessages]);
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
@@ -52,32 +60,61 @@ export default function AgentPanel({ onCollapse }: { onCollapse?: () => void }) 
     });
   }, []);
 
-  useEffect(() => scrollToBottom(), [messages, displayedContent, scrollToBottom]);
+  useEffect(() => scrollToBottom(), [messages, displayedContent, agentConvoMessages, scrollToBottom]);
 
-  const simulateTyping = useCallback((fullText: string) => {
+  // Auto agent-to-agent conversation
+  useEffect(() => {
+    const convo = fileChat.agentConversation;
+    if (agentConvoIdx >= convo.length) return;
+
+    const delay = 3000 + Math.random() * 4000; // 3-7 seconds
+    agentConvoTimer.current = setTimeout(() => {
+      const nextMsg = convo[agentConvoIdx];
+      // Show typing indicator for 1-2 seconds
+      setAgentTyping(nextMsg.agentId);
+      
+      setTimeout(() => {
+        setAgentTyping(null);
+        setAgentConvoMessages((prev) => [
+          ...prev,
+          {
+            role: "agent",
+            agentId: nextMsg.agentId,
+            content: nextMsg.content,
+            timestamp: getTimestamp(),
+          },
+        ]);
+        setAgentConvoIdx((i) => i + 1);
+      }, 1000 + Math.random() * 1500);
+    }, delay);
+
+    return () => clearTimeout(agentConvoTimer.current);
+  }, [agentConvoIdx, fileChat.agentConversation]);
+
+  const simulateTyping = useCallback((fullText: string, agentId: string) => {
     setIsTyping(true);
+    setTypingAgentId(agentId);
     setDisplayedContent("");
     let i = 0;
-    const speed = 12; // ms per character
+    const speed = 12;
 
     const tick = () => {
       if (i < fullText.length) {
-        // Add 1-3 chars at a time for natural feel
         const chunk = Math.min(Math.floor(Math.random() * 3) + 1, fullText.length - i);
         i += chunk;
         setDisplayedContent(fullText.slice(0, i));
         setTimeout(tick, speed + Math.random() * 15);
       } else {
         setIsTyping(false);
+        setTypingAgentId(null);
         setMessages((prev) => [
           ...prev,
-          { role: "agent", content: fullText, timestamp: getTimestamp() },
+          { role: "agent", agentId, content: fullText, timestamp: getTimestamp() },
         ]);
         setDisplayedContent("");
       }
     };
 
-    // Brief "thinking" delay
     setTimeout(tick, 600);
   }, []);
 
@@ -91,9 +128,9 @@ export default function AgentPanel({ onCollapse }: { onCollapse?: () => void }) 
     ]);
     setInput("");
 
-    const response = agentResponses[responseIdx.current % agentResponses.length];
+    const response = responses[responseIdx.current % responses.length];
     responseIdx.current++;
-    simulateTyping(response);
+    simulateTyping(response.content, response.agentId);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -102,6 +139,9 @@ export default function AgentPanel({ onCollapse }: { onCollapse?: () => void }) 
       handleSend();
     }
   };
+
+  const getAgent = (id: string) => agents.find((a) => a.id === id);
+  const allMessages = [...messages, ...agentConvoMessages];
 
   return (
     <div className="w-80 bg-card border-l border-border flex flex-col h-full">
@@ -126,63 +166,101 @@ export default function AgentPanel({ onCollapse }: { onCollapse?: () => void }) 
         </div>
       </div>
 
-      {/* Agent status */}
+      {/* File context indicator */}
       <div className="px-4 py-2.5 border-b border-border bg-muted/50 shrink-0">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <PxIcon icon="cpu" size={14} />
+          <PxIcon icon="file" size={14} />
           <span>
-            {isTyping ? (
-              <span className="text-foreground">Generating response...</span>
-            ) : (
-              <>Working on <span className="text-foreground">Dashboard.tsx</span></>
-            )}
+            Context: <span className="text-foreground font-mono">{currentFile === "_default" ? "Project" : currentFile}</span>
           </span>
-        </div>
-        <div className="mt-1.5 h-1 bg-accent overflow-hidden">
-          <div
-            className={`h-full bg-foreground transition-all duration-300 ${
-              isTyping ? "animate-pulse w-full" : "w-3/5"
-            }`}
-          />
         </div>
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"} animate-fade-in`}>
-            <div className={`max-w-[90%] px-3 py-2 text-sm ${
-              msg.role === "user"
-                ? "bg-foreground text-background"
-                : "bg-muted text-foreground"
-            }`}>
-              <p className="whitespace-pre-wrap">{msg.content}</p>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+        {allMessages.map((msg, i) => {
+          const agent = msg.agentId ? getAgent(msg.agentId) : null;
+          return (
+            <div key={i} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"} animate-fade-in`}>
+              {/* Agent avatar + name */}
+              {msg.role === "agent" && agent && (
+                <div className="flex items-center gap-1.5 mb-1">
+                  <img src={agent.avatar} alt={agent.name} className="w-5 h-5 rounded-full object-cover" />
+                  <span className={`text-xs font-medium ${agent.color}`}>{agent.name}</span>
+                </div>
+              )}
+              <div className={`max-w-[90%] px-3 py-2 text-sm ${
+                msg.role === "user"
+                  ? "bg-foreground text-background"
+                  : "bg-muted text-foreground"
+              }`}>
+                <p className="whitespace-pre-wrap">{msg.content}</p>
+              </div>
+              <span className="text-[10px] text-muted-foreground mt-0.5">{msg.timestamp}</span>
             </div>
-            <span className="text-xs text-muted-foreground mt-1">{msg.timestamp}</span>
-          </div>
-        ))}
+          );
+        })}
 
-        {/* Typing indicator */}
+        {/* User-triggered typing indicator */}
         {isTyping && displayedContent && (
           <div className="flex flex-col items-start">
+            {typingAgentId && (() => {
+              const a = getAgent(typingAgentId);
+              return a ? (
+                <div className="flex items-center gap-1.5 mb-1">
+                  <img src={a.avatar} alt={a.name} className="w-5 h-5 rounded-full object-cover" />
+                  <span className={`text-xs font-medium ${a.color}`}>{a.name}</span>
+                </div>
+              ) : null;
+            })()}
             <div className="max-w-[90%] px-3 py-2 text-sm bg-muted text-foreground">
               <p className="whitespace-pre-wrap">{displayedContent}<span className="inline-block w-1.5 h-4 bg-foreground/70 animate-pulse ml-0.5 align-text-bottom" /></p>
             </div>
           </div>
         )}
 
-        {/* Loading dots before text starts */}
-        {isTyping && !displayedContent && (
-          <div className="flex flex-col items-start">
-            <div className="px-3 py-2 bg-muted">
-              <div className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+        {/* Loading dots before response text starts */}
+        {isTyping && !displayedContent && typingAgentId && (() => {
+          const a = getAgent(typingAgentId);
+          return (
+            <div className="flex flex-col items-start">
+              {a && (
+                <div className="flex items-center gap-1.5 mb-1">
+                  <img src={a.avatar} alt={a.name} className="w-5 h-5 rounded-full object-cover" />
+                  <span className={`text-xs font-medium ${a.color}`}>{a.name}</span>
+                </div>
+              )}
+              <div className="px-3 py-2.5 bg-muted rounded">
+                <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
+
+        {/* Agent-to-agent typing bubble */}
+        {agentTyping && !isTyping && (() => {
+          const a = getAgent(agentTyping);
+          return a ? (
+            <div className="flex flex-col items-start animate-fade-in">
+              <div className="flex items-center gap-1.5 mb-1">
+                <img src={a.avatar} alt={a.name} className="w-5 h-5 rounded-full object-cover" />
+                <span className={`text-xs font-medium ${a.color}`}>{a.name}</span>
+                <span className="text-[10px] text-muted-foreground">is typing...</span>
+              </div>
+              <div className="px-3 py-2.5 bg-muted rounded">
+                <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+              </div>
+            </div>
+          ) : null;
+        })()}
       </div>
 
       {/* Input */}
