@@ -47,7 +47,7 @@ export default function AgentActivityBar({ onCollapse }: { onCollapse?: () => vo
                   alt={agent.name}
                   className="w-9 h-9 rounded-full object-cover ring-2 ring-border"
                 />
-                <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full ${agent.statusColor} border-2 border-muted`} />
+                <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full ${agent.statusColor} border-2 border-muted ${agent.status === "working" ? "animate-notif-blink" : ""}`} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
