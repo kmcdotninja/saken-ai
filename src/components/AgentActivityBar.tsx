@@ -27,11 +27,9 @@ export default function AgentActivityBar({ onCollapse }: { onCollapse?: () => vo
           <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-dot" />
           3 active
         </span>
-        {onCollapse && (
-          <button onClick={onCollapse} className="p-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors ml-1" title="Collapse panel">
-            <PxIcon icon="chevrons-right" size={14} />
-          </button>
-        )}
+        <button onClick={onCollapse} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent border border-border rounded transition-colors ml-1" title="Hide panel">
+          <PxIcon icon="chevrons-right" size={14} />
+        </button>
       </div>
 
       {/* Agent cards */}
