@@ -2,6 +2,7 @@ import { useState } from "react";
 import { agents, type KanbanCard } from "@/data/kanban-data";
 import NewIssueModal from "./NewIssueModal";
 import PxIcon from "./PxIcon";
+import { toast } from "sonner";
 
 interface Issue {
   id: string;
@@ -77,6 +78,9 @@ export default function IssuesPanel() {
       created: "just now",
     };
     setIssues((prev) => [newIssue, ...prev]);
+    toast.success("Issue created", {
+      description: `${card.id} — ${card.title}`,
+    });
   };
 
   const filtered = issues.filter((i) => {
