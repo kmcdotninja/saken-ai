@@ -1,108 +1,15 @@
-import { useState, useCallback, useMemo } from "react";
-import CodeMirror from "@uiw/react-codemirror";
-import { javascript } from "@codemirror/lang-javascript";
-import { json } from "@codemirror/lang-json";
-import { EditorView } from "@codemirror/view";
-import { Extension } from "@codemirror/state";
-import { rawFileContents } from "@/data/file-raw-contents";
 import PxIcon from "./PxIcon";
+import { fileContents } from "@/data/file-contents";
 
-// Custom dark theme matching the app's design tokens
-const sakenTheme = EditorView.theme(
-  {
-    "&": {
-      backgroundColor: "hsl(0 0% 5%)",
-      color: "hsl(0 0% 85%)",
-      fontFamily: "'Geist Mono', 'Fira Code', monospace",
-      fontSize: "13px",
-    },
-    ".cm-content": {
-      caretColor: "hsl(0 0% 90%)",
-      padding: "8px 0",
-    },
-    ".cm-cursor, .cm-dropCursor": {
-      borderLeftColor: "hsl(0 0% 90%)",
-      borderLeftWidth: "2px",
-    },
-    "&.cm-focused .cm-selectionBackground, .cm-selectionBackground": {
-      backgroundColor: "hsl(0 0% 25%) !important",
-    },
-    ".cm-activeLine": {
-      backgroundColor: "hsl(0 0% 10%)",
-    },
-    ".cm-gutters": {
-      backgroundColor: "hsl(0 0% 5%)",
-      color: "hsl(0 0% 35%)",
-      border: "none",
-      paddingRight: "8px",
-    },
-    ".cm-activeLineGutter": {
-      backgroundColor: "hsl(0 0% 10%)",
-      color: "hsl(0 0% 55%)",
-    },
-    ".cm-lineNumbers .cm-gutterElement": {
-      minWidth: "2.5rem",
-      textAlign: "right",
-      paddingRight: "12px",
-      fontSize: "12px",
-    },
-    ".cm-foldGutter": {
-      width: "12px",
-    },
-    ".cm-matchingBracket": {
-      backgroundColor: "hsl(0 0% 20%)",
-      outline: "1px solid hsl(0 0% 30%)",
-    },
-    ".cm-searchMatch": {
-      backgroundColor: "hsl(38 92% 50% / 0.3)",
-    },
-    ".cm-tooltip": {
-      backgroundColor: "hsl(0 0% 12%)",
-      border: "1px solid hsl(0 0% 16%)",
-      color: "hsl(0 0% 85%)",
-    },
-    ".cm-panels": {
-      backgroundColor: "hsl(0 0% 8%)",
-      color: "hsl(0 0% 85%)",
-    },
-  },
-  { dark: true }
-);
-
-// Syntax highlighting colors matching the code tokens
-import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
-import { tags } from "@lezer/highlight";
-
-const sakenHighlight = HighlightStyle.define([
-  { tag: tags.keyword, color: "hsl(0 0% 70%)" },
-  { tag: tags.string, color: "hsl(142 71% 55%)" },
-  { tag: tags.typeName, color: "hsl(38 92% 60%)" },
-  { tag: tags.comment, color: "hsl(0 0% 35%)", fontStyle: "italic" },
-  { tag: tags.function(tags.variableName), color: "hsl(0 0% 80%)" },
-  { tag: tags.variableName, color: "hsl(0 0% 85%)" },
-  { tag: tags.number, color: "hsl(0 0% 60%)" },
-  { tag: tags.bool, color: "hsl(0 0% 70%)" },
-  { tag: tags.operator, color: "hsl(0 0% 60%)" },
-  { tag: tags.propertyName, color: "hsl(0 0% 80%)" },
-  { tag: tags.tagName, color: "hsl(0 0% 70%)" },
-  { tag: tags.attributeName, color: "hsl(38 92% 60%)" },
-  { tag: tags.definition(tags.variableName), color: "hsl(0 0% 85%)" },
-  { tag: tags.bracket, color: "hsl(0 0% 55%)" },
-  { tag: tags.punctuation, color: "hsl(0 0% 55%)" },
-  { tag: tags.meta, color: "hsl(0 0% 50%)" },
-  { tag: tags.regexp, color: "hsl(142 71% 55%)" },
-  { tag: tags.className, color: "hsl(38 92% 60%)" },
-  { tag: tags.self, color: "hsl(0 0% 70%)" },
-  { tag: tags.null, color: "hsl(0 0% 70%)" },
-]);
-
-function getExtensions(language: string): Extension[] {
-  const base = [sakenTheme, syntaxHighlighting(sakenHighlight)];
-  if (language === "JSON") return [...base, json()];
-  if (language.includes("TypeScript") || language.includes("React"))
-    return [...base, javascript({ jsx: true, typescript: true })];
-  return base;
-}
+const colorMap: Record<string, string> = {
+  keyword: "text-[hsl(var(--code-keyword))]",
+  string: "text-[hsl(var(--code-string))]",
+  type: "text-[hsl(var(--code-type))]",
+  comment: "text-[hsl(var(--code-comment))]",
+  function: "text-[hsl(var(--code-function))]",
+  variable: "text-[hsl(var(--code-variable))]",
+  number: "text-[hsl(var(--code-number))]",
+};
 
 interface Props {
   tabs: string[];
@@ -112,36 +19,6 @@ interface Props {
 }
 
 export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }: Props) {
-  // Store editable content per file
-  const [fileBuffers, setFileBuffers] = useState<Record<string, string>>(() => {
-    const buffers: Record<string, string> = {};
-    Object.entries(rawFileContents).forEach(([key, file]) => {
-      buffers[key] = file.content;
-    });
-    return buffers;
-  });
-
-  const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
-
-  const handleChange = useCallback(
-    (value: string) => {
-      setFileBuffers((prev) => ({ ...prev, [activeTab]: value }));
-    },
-    [activeTab]
-  );
-
-  const handleStatUpdate = useMemo(
-    () =>
-      EditorView.updateListener.of((update) => {
-        if (update.selectionSet) {
-          const pos = update.state.selection.main.head;
-          const line = update.state.doc.lineAt(pos);
-          setCursorPos({ line: line.number, col: pos - line.from + 1 });
-        }
-      }),
-    []
-  );
-
   if (tabs.length === 0) {
     return (
       <div className="flex-1 flex flex-col bg-background min-w-0 min-h-0 overflow-hidden">
@@ -150,10 +27,7 @@ export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }:
             <PxIcon icon="file" size={48} className="mx-auto text-muted-foreground/20" />
             <div className="space-y-1.5">
               <p className="text-sm font-medium text-muted-foreground">No files open</p>
-              <p className="text-xs text-muted-foreground/60">
-                Open a file from the explorer or use{" "}
-                <kbd className="px-1.5 py-0.5 bg-muted border border-border text-[10px]">⌘K</kbd> to search
-              </p>
+              <p className="text-xs text-muted-foreground/60">Open a file from the explorer or use <kbd className="px-1.5 py-0.5 bg-muted border border-border text-[10px]">⌘K</kbd> to search</p>
             </div>
             <div className="flex flex-col items-center gap-2 pt-2 text-xs text-muted-foreground/50">
               <div className="flex items-center gap-2">
@@ -171,6 +45,7 @@ export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }:
             </div>
           </div>
         </div>
+        {/* Status bar */}
         <div className="flex items-center justify-between px-3 h-6 bg-card border-t border-border text-xs text-muted-foreground">
           <span>No file selected</span>
         </div>
@@ -178,12 +53,11 @@ export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }:
     );
   }
 
-  const file = rawFileContents[activeTab];
+  const file = fileContents[activeTab];
+  const lines = file?.lines ?? [];
   const lang = file?.language ?? "Plain Text";
   const filePath = file?.path ?? activeTab;
   const pathParts = filePath.split("/");
-  const content = fileBuffers[activeTab] ?? "";
-  const extensions = getExtensions(lang);
 
   return (
     <div className="flex-1 flex flex-col bg-background min-w-0 min-h-0 overflow-hidden">
@@ -202,10 +76,7 @@ export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }:
             <PxIcon icon="file" size={12} className="shrink-0" />
             <span>{tab}</span>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onCloseTab(tab);
-              }}
+              onClick={(e) => { e.stopPropagation(); onCloseTab(tab); }}
               className="opacity-0 group-hover:opacity-100 hover:bg-accent p-0.5 transition-opacity"
             >
               <PxIcon icon="close" size={10} />
@@ -224,28 +95,30 @@ export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }:
         ))}
       </div>
 
-      {/* CodeMirror editor */}
-      <div className="flex-1 overflow-auto min-h-0">
-        <CodeMirror
-          value={content}
-          onChange={handleChange}
-          extensions={[...extensions, handleStatUpdate]}
-          basicSetup={{
-            lineNumbers: true,
-            highlightActiveLineGutter: true,
-            highlightActiveLine: true,
-            foldGutter: true,
-            bracketMatching: true,
-            closeBrackets: true,
-            autocompletion: true,
-            indentOnInput: true,
-            tabSize: 2,
-          }}
-          theme="dark"
-          height="100%"
-          style={{ height: "100%" }}
-        />
-      </div>
+      {/* Code area */}
+      {lines.length > 0 ? (
+        <div className="flex-1 overflow-auto font-mono text-sm leading-6">
+          <div className="py-2">
+            {lines.map((line) => (
+              <div key={line.num} className="flex hover:bg-card/50 px-2">
+                <span className="line-number text-xs leading-6">{line.num}</span>
+                <pre className="flex-1">
+                  {line.content.length === 0 ? "\n" : line.content.map((token, i) => (
+                    <span key={i} className={colorMap[token.cls] || ""}>{token.text}</span>
+                  ))}
+                </pre>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
+          <div className="text-center">
+            <PxIcon icon="file" size={32} className="mx-auto mb-2 opacity-30" />
+            <p>No preview available for this file</p>
+          </div>
+        </div>
+      )}
 
       {/* Status bar */}
       <div className="flex items-center justify-between px-3 h-6 bg-card border-t border-border text-xs text-muted-foreground">
@@ -254,7 +127,7 @@ export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }:
           <span>UTF-8</span>
         </div>
         <div className="flex items-center gap-3">
-          <span>Ln {cursorPos.line}, Col {cursorPos.col}</span>
+          <span>Ln 1, Col 1</span>
           <span>Spaces: 2</span>
         </div>
       </div>
