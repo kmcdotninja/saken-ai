@@ -50,7 +50,7 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
         >
           <PxIcon icon="notification" size={16} />
           <span
-            className={`absolute top-1 right-1 w-2.5 h-2.5 rounded-full animate-notif-blink ${severityBellColor[bellSeverity]}`}
+            className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-foreground"
             style={{ zIndex: 10 }}
           />
         </button>
