@@ -41,7 +41,7 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
           title="Notifications"
         >
           <PxIcon icon="notification" size={16} />
-          {hasUnread && <span className="absolute top-1 right-1 w-2 h-2 bg-foreground rounded-full animate-notif-blink" />}
+          {hasUnread && <span className="absolute top-1 right-1 w-2 h-2 bg-success rounded-full animate-notif-blink" />}
         </button>
       </div>
     </div>
