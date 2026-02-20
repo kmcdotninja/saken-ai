@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { agents } from "@/data/kanban-data";
 import PxIcon from "./PxIcon";
+import AgentDetailPanel from "./AgentDetailPanel";
 
 const agentIcons: Record<string, string> = {
   vlad: "code",
@@ -38,6 +39,7 @@ interface LiveEntry {
 }
 
 export default function AgentActivityBar({ onCollapse }: { onCollapse?: () => void }) {
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [entries, setEntries] = useState<LiveEntry[]>(() =>
     activityTemplates.slice(0, 6).map((t, i) => ({
       ...t,
@@ -65,6 +67,12 @@ export default function AgentActivityBar({ onCollapse }: { onCollapse?: () => vo
     return () => clearInterval(interval);
   }, []);
 
+  // If an agent is selected, show detail panel
+  const selectedAgent = selectedAgentId ? agents.find((a) => a.id === selectedAgentId) : null;
+  if (selectedAgent) {
+    return <AgentDetailPanel agent={selectedAgent} onBack={() => setSelectedAgentId(null)} />;
+  }
+
   return (
     <div className="w-72 bg-card border-l border-border flex flex-col h-full">
       {/* Header */}
@@ -87,6 +95,7 @@ export default function AgentActivityBar({ onCollapse }: { onCollapse?: () => vo
           return (
             <div
               key={agent.id}
+              onClick={() => setSelectedAgentId(agent.id)}
               className="flex items-center gap-3 px-3 py-2.5 bg-muted hover:bg-accent transition-colors cursor-pointer"
             >
               <div className="relative shrink-0">
