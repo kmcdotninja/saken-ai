@@ -41,62 +41,62 @@
 
 @layer base {
   :root {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 90%;
+    --background: 220 25% 8%;
+    --foreground: 210 15% 88%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 90%;
+    --card: 220 22% 11%;
+    --card-foreground: 210 15% 88%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 90%;
+    --popover: 220 22% 11%;
+    --popover-foreground: 210 15% 88%;
 
-    --primary: 0 0% 90%;
-    --primary-foreground: 0 0% 5%;
+    --primary: 24 95% 53%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 70%;
+    --secondary: 220 20% 14%;
+    --secondary-foreground: 210 10% 65%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 220 18% 14%;
+    --muted-foreground: 215 12% 45%;
 
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 90%;
+    --accent: 220 20% 16%;
+    --accent-foreground: 210 15% 88%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 0 0% 50%;
+    --border: 220 18% 16%;
+    --input: 220 18% 16%;
+    --ring: 24 95% 53%;
 
     --radius: 0px;
 
-    --sidebar-background: 0 0% 7%;
-    --sidebar-foreground: 0 0% 65%;
-    --sidebar-primary: 0 0% 90%;
-    --sidebar-primary-foreground: 0 0% 5%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 0 0% 14%;
-    --sidebar-ring: 0 0% 50%;
+    --sidebar-background: 220 25% 9%;
+    --sidebar-foreground: 215 12% 60%;
+    --sidebar-primary: 24 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 14%;
+    --sidebar-accent-foreground: 210 15% 88%;
+    --sidebar-border: 220 18% 14%;
+    --sidebar-ring: 24 95% 53%;
 
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 0%;
 
-    --surface-0: 0 0% 5%;
-    --surface-1: 0 0% 7%;
-    --surface-2: 0 0% 10%;
-    --surface-3: 0 0% 13%;
+    --surface-0: 220 25% 8%;
+    --surface-1: 220 22% 10%;
+    --surface-2: 220 20% 13%;
+    --surface-3: 220 18% 16%;
 
-    --code-keyword: 0 0% 70%;
+    --code-keyword: 24 80% 60%;
     --code-string: 142 71% 55%;
     --code-type: 38 92% 60%;
-    --code-comment: 0 0% 35%;
-    --code-function: 0 0% 80%;
-    --code-variable: 0 0% 85%;
-    --code-number: 0 0% 60%;
+    --code-comment: 215 12% 38%;
+    --code-function: 210 15% 78%;
+    --code-variable: 210 15% 85%;
+    --code-number: 24 60% 55%;
   }
 }
 
@@ -140,11 +140,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(0 0% 20%);
+  background: hsl(220 18% 20%);
   border-radius: 0px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(0 0% 28%);
+  background: hsl(220 18% 28%);
 }
 
 /* Line number gutter */
