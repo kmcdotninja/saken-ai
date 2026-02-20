@@ -28,7 +28,7 @@ export default function AgentActivityBar({ onCollapse }: { onCollapse?: () => vo
           3 active
         </span>
         <button onClick={onCollapse} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent border border-border rounded transition-colors ml-1" title="Hide panel">
-          <PxIcon icon="chevrons-right" size={14} />
+          <PxIcon icon="chevron-right" size={16} />
         </button>
       </div>
 
