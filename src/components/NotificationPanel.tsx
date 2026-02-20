@@ -1,3 +1,4 @@
+import { useState } from "react";
 import PxIcon from "./PxIcon";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import avatarVlad from "@/assets/avatar-vlad.png";
@@ -107,6 +108,15 @@ const notifications: Notification[] = [
   },
 ];
 
+const filterTabs = [
+  { label: "All", type: null },
+  { label: "Agents", type: "agent" },
+  { label: "Deploys", type: "deploy" },
+  { label: "Git", type: "git" },
+] as const;
+
+type FilterType = null | "agent" | "deploy" | "git";
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -121,7 +131,18 @@ export function getUnreadSeverity(): NotifSeverity | null {
 }
 
 export default function NotificationPanel({ open, onClose }: Props) {
+  const [activeFilter, setActiveFilter] = useState<FilterType>(null);
+
+  const filtered = activeFilter
+    ? notifications.filter((n) => n.type === activeFilter)
+    : notifications;
+
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const getTabUnread = (type: FilterType) => {
+    if (type === null) return notifications.filter((n) => !n.read).length;
+    return notifications.filter((n) => !n.read && n.type === type).length;
+  };
 
   return (
     <>
@@ -166,20 +187,34 @@ export default function NotificationPanel({ open, onClose }: Props) {
 
         {/* Filter tabs */}
         <div className="flex items-center gap-0 px-4 py-2 border-b border-border text-[11px] shrink-0">
-          {["All", "Agents", "Deploys", "Git"].map((tab) => (
-            <button
-              key={tab}
-              className="px-2.5 py-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors first:bg-accent first:text-foreground"
-            >
-              {tab}
-            </button>
-          ))}
+          {filterTabs.map((tab) => {
+            const isActive = activeFilter === tab.type;
+            const tabUnread = getTabUnread(tab.type);
+            return (
+              <button
+                key={tab.label}
+                onClick={() => setActiveFilter(tab.type)}
+                className={`relative px-2.5 py-1 transition-colors ${
+                  isActive
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                }`}
+              >
+                {tab.label}
+                {tabUnread > 0 && (
+                  <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-[9px] font-bold bg-success text-success-foreground rounded-full animate-notif-blink">
+                    {tabUnread}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Notification list */}
         <ScrollArea className="flex-1">
           <div className="flex flex-col">
-            {notifications.map((n) => (
+            {filtered.map((n) => (
               <div
                 key={n.id}
                 className={`flex gap-3 px-4 py-3 border-b border-border hover:bg-accent/50 transition-colors cursor-pointer ${
