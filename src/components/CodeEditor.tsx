@@ -1,5 +1,5 @@
 import PxIcon from "./PxIcon";
-import { fileContents } from "@/data/file-contents";
+import { projectViewData } from "@/data/project-data";
 
 const colorMap: Record<string, string> = {
   keyword: "text-[hsl(var(--code-keyword))]",
@@ -16,9 +16,13 @@ interface Props {
   activeTab: string;
   onSelectTab: (tab: string) => void;
   onCloseTab: (tab: string) => void;
+  projectId: string;
 }
 
-export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }: Props) {
+export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab, projectId }: Props) {
+  const data = projectViewData[projectId] || projectViewData["nexus-platform"];
+  const fileContents = data.fileContents;
+
   if (tabs.length === 0) {
     return (
       <div className="flex-1 flex flex-col bg-background min-w-0 min-h-0 overflow-hidden">
@@ -45,7 +49,6 @@ export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }:
             </div>
           </div>
         </div>
-        {/* Status bar */}
         <div className="flex items-center justify-between px-3 h-6 bg-card border-t border-border text-xs text-muted-foreground">
           <span>No file selected</span>
         </div>

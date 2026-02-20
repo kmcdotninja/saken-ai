@@ -14,26 +14,37 @@ import TopBar from "@/components/TopBar";
 import CommandPalette from "@/components/CommandPalette";
 import NotificationPanel, { getUnreadSeverity } from "@/components/NotificationPanel";
 import type { BellSeverity } from "@/components/TopBar";
+import { projectViewData } from "@/data/project-data";
 
 const Index = () => {
   const { id: projectId } = useParams();
+  const currentProject = projectId || "nexus-platform";
+  const viewData = projectViewData[currentProject] || projectViewData["nexus-platform"];
+
   const [activeView, setActiveView] = useState("board");
-  const [activeFile, setActiveFile] = useState("Dashboard.tsx");
-  const [tabs, setTabs] = useState(["Dashboard.tsx", "api.ts", "App.tsx"]);
-  const [activeTab, setActiveTab] = useState("Dashboard.tsx");
+  const [activeFile, setActiveFile] = useState(viewData.defaultTabs[0]);
+  const [tabs, setTabs] = useState(viewData.defaultTabs);
+  const [activeTab, setActiveTab] = useState(viewData.defaultTabs[0]);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [agentPanelOpen, setAgentPanelOpen] = useState(true);
   const [openProjects, setOpenProjects] = useState<string[]>(() => {
     const stored = sessionStorage.getItem("openProjects");
     const existing: string[] = stored ? JSON.parse(stored) : [];
-    const current = projectId || "nexus-platform";
-    if (!existing.includes(current)) {
-      existing.push(current);
+    if (!existing.includes(currentProject)) {
+      existing.push(currentProject);
     }
     sessionStorage.setItem("openProjects", JSON.stringify(existing));
     return existing;
   });
+
+  // Reset editor state when project changes
+  useEffect(() => {
+    const data = projectViewData[currentProject] || projectViewData["nexus-platform"];
+    setTabs(data.defaultTabs);
+    setActiveTab(data.defaultTabs[0]);
+    setActiveFile(data.defaultTabs[0]);
+  }, [currentProject]);
 
   const handleOpenProjectsChange = (projects: string[]) => {
     setOpenProjects(projects);
@@ -53,7 +64,6 @@ const Index = () => {
     return () => window.removeEventListener("keydown", onKey);
   }, [toggleCmd]);
 
-  // Auto-collapse on smaller screens on first load only
   useEffect(() => {
     if (window.innerWidth < 1280) setAgentPanelOpen(false);
   }, []);
@@ -77,26 +87,27 @@ const Index = () => {
   const renderMainContent = () => {
     switch (activeView) {
       case "git":
-        return <GitPanel />;
+        return <GitPanel projectId={currentProject} />;
       case "deployments":
-        return <DeploymentsPanel />;
+        return <DeploymentsPanel projectId={currentProject} />;
       case "editor":
         return (
           <div className="flex flex-1 min-h-0">
-            <FileExplorer activeFile={activeFile} onSelectFile={handleSelectFile} />
+            <FileExplorer activeFile={activeFile} onSelectFile={handleSelectFile} projectId={currentProject} />
             <div className="flex-1 flex flex-col min-w-0 min-h-0">
               <CodeEditor
                 tabs={tabs}
                 activeTab={activeTab}
                 onSelectTab={setActiveTab}
                 onCloseTab={handleCloseTab}
+                projectId={currentProject}
               />
               <TerminalPanel />
             </div>
           </div>
         );
-      default: // board
-        return <KanbanBoard />;
+      default:
+        return <KanbanBoard projectId={currentProject} />;
     }
   };
 
@@ -119,7 +130,7 @@ const Index = () => {
       <Sidebar active={activeView} onNavigate={setActiveView} openProjects={openProjects} onOpenProjectsChange={handleOpenProjectsChange} />
       <div className="flex-1 flex flex-col min-w-0">
         <TopBar
-          currentBranch="feat/dashboard-redesign"
+          currentBranch={viewData.currentBranch}
           activeView={activeView}
           onSearchClick={() => setCmdOpen(true)}
           onNotificationClick={() => setNotifOpen(true)}

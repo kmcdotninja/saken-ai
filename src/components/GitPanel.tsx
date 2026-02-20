@@ -1,26 +1,14 @@
 import PxIcon from "./PxIcon";
+import { projectViewData } from "@/data/project-data";
 
-const branches = [
-  { name: "main", current: false },
-  { name: "feat/dashboard-redesign", current: true },
-  { name: "fix/auth-flow", current: false },
-];
+interface Props {
+  projectId: string;
+}
 
-const commits = [
-  { hash: "b7e9f4a", message: "feat: add project cards with deployment status", author: "You", time: "2m ago", status: "pushed" },
-  { hash: "a3f2d1c", message: "fix: resolve type error in useProjects hook", author: "AI Agent", time: "5m ago", status: "pushed" },
-  { hash: "8d2c1b0", message: "chore: update dependencies", author: "You", time: "1h ago", status: "pushed" },
-  { hash: "f4a9e2d", message: "feat: implement dark mode design system", author: "AI Agent", time: "2h ago", status: "pushed" },
-  { hash: "c1b8d3e", message: "initial commit", author: "You", time: "3h ago", status: "pushed" },
-];
+export default function GitPanel({ projectId }: Props) {
+  const data = projectViewData[projectId] || projectViewData["nexus-platform"];
+  const { branches, commits, changes } = data.git;
 
-const changes = [
-  { file: "src/components/Dashboard.tsx", status: "modified" },
-  { file: "src/lib/api.ts", status: "modified" },
-  { file: "src/components/ErrorBoundary.tsx", status: "added" },
-];
-
-export default function GitPanel() {
   return (
     <div className="flex-1 overflow-y-auto bg-background p-6">
       <div className="max-w-3xl mx-auto space-y-6">
@@ -64,9 +52,9 @@ export default function GitPanel() {
           <div className="space-y-1">
             {changes.map((c) => (
               <div key={c.file} className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent">
-                <span className={`w-1.5 h-1.5 rounded-full ${c.status === "added" ? "bg-success" : "bg-warning"}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${c.status === "added" ? "bg-success" : c.status === "deleted" ? "bg-destructive" : "bg-warning"}`} />
                 <span className="font-mono text-xs flex-1">{c.file}</span>
-                <span className="text-xs">{c.status === "added" ? "A" : "M"}</span>
+                <span className="text-xs">{c.status === "added" ? "A" : c.status === "deleted" ? "D" : "M"}</span>
               </div>
             ))}
           </div>
