@@ -3,6 +3,13 @@ import { useNavigate } from "react-router-dom";
 import logoSaken from "@/assets/logo-saken.png";
 import PxIcon from "@/components/PxIcon";
 
+const statusConfig: Record<string, { icon: string; cls: string; bg: string; label: string }> = {
+  active: { icon: "check", cls: "text-success", bg: "bg-success/10", label: "Active" },
+  paused: { icon: "clock", cls: "text-warning", bg: "bg-warning/10", label: "Paused" },
+  archived: { icon: "archive", cls: "text-muted-foreground", bg: "bg-muted", label: "Archived" },
+  inactive: { icon: "circle", cls: "text-muted-foreground", bg: "bg-muted", label: "Inactive" },
+};
+
 interface Project {
   id: string;
   name: string;
@@ -82,13 +89,15 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
           </div>
           <div>
             <h3 className="text-sm font-semibold text-foreground">{project.name}</h3>
-            <span className={`text-[10px] px-1.5 py-0.5 ${
-              project.status === "active" ? "text-success bg-success/10" :
-              project.status === "paused" ? "text-warning bg-warning/10" :
-              "text-muted-foreground bg-muted"
-            }`}>
-              {project.status}
-            </span>
+            {(() => {
+              const s = statusConfig[project.status] || statusConfig.inactive;
+              return (
+                <span className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 ${s.bg} ${s.cls}`}>
+                  <PxIcon icon={s.icon} size={10} />
+                  {s.label}
+                </span>
+              );
+            })()}
           </div>
         </div>
         <button className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-foreground transition-opacity">
@@ -140,13 +149,15 @@ function ProjectRow({ project, onClick }: { project: Project; onClick: () => voi
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-foreground">{project.name}</span>
-          <span className={`text-[10px] px-1.5 py-0.5 ${
-            project.status === "active" ? "text-success bg-success/10" :
-            project.status === "paused" ? "text-warning bg-warning/10" :
-            "text-muted-foreground bg-muted"
-          }`}>
-            {project.status}
-          </span>
+          {(() => {
+            const s = statusConfig[project.status] || statusConfig.inactive;
+            return (
+              <span className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 ${s.bg} ${s.cls}`}>
+                <PxIcon icon={s.icon} size={10} />
+                {s.label}
+              </span>
+            );
+          })()}
         </div>
         <p className="text-xs text-muted-foreground truncate">{project.description}</p>
       </div>
