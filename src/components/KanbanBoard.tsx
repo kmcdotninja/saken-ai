@@ -3,6 +3,8 @@ import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-p
 import { agents, type KanbanCard as CardType, type KanbanColumn, projectColumns } from "@/data/kanban-data";
 import { projectViewData } from "@/data/project-data";
 import IssueModal from "./IssueModal";
+import NewIssueModal from "./NewIssueModal";
+import AgentAssignModal from "./AgentAssignModal";
 import PxIcon from "./PxIcon";
 
 const priorityConfig: Record<string, { icon: string; cls: string; bg: string }> = {
@@ -150,6 +152,29 @@ export default function KanbanBoard({ projectId }: Props) {
   const [cols, setCols] = useState<KanbanColumn[]>(initialColumns);
   const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
+  const [showNewIssue, setShowNewIssue] = useState(false);
+  const [showAssignAgent, setShowAssignAgent] = useState(false);
+
+  const projectPrefix = (projectColumns[projectId]?.[0]?.cards[0]?.id || "NEXUS-000").split("-")[0];
+
+  const handleNewIssue = (card: CardType, columnId: string) => {
+    setCols((prev) =>
+      prev.map((c) =>
+        c.id === columnId ? { ...c, cards: [...c.cards, card] } : c
+      )
+    );
+  };
+
+  const handleBulkAssign = (cardIds: string[], agentId: string) => {
+    setCols((prev) =>
+      prev.map((c) => ({
+        ...c,
+        cards: c.cards.map((card) =>
+          cardIds.includes(card.id) ? { ...card, assignee: agentId } : card
+        ),
+      }))
+    );
+  };
 
   // Reset when project changes
   useEffect(() => {
@@ -208,10 +233,16 @@ export default function KanbanBoard({ projectId }: Props) {
               <PxIcon icon="list" size={14} />
             </button>
           </div>
-          <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground bg-muted border border-border">
+          <button
+            onClick={() => setShowAssignAgent(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground bg-muted border border-border"
+          >
             <PxIcon icon="cpu" size={12} /> Assign Agent
           </button>
-          <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-foreground text-background hover:bg-foreground/90">
+          <button
+            onClick={() => setShowNewIssue(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-foreground text-background hover:bg-foreground/90"
+          >
             <PxIcon icon="plus" size={12} /> New Issue
           </button>
         </div>
@@ -304,6 +335,22 @@ export default function KanbanBoard({ projectId }: Props) {
           card={selectedCard}
           onClose={() => setSelectedCard(null)}
           onReassign={handleReassign}
+        />
+      )}
+
+      {showNewIssue && (
+        <NewIssueModal
+          onClose={() => setShowNewIssue(false)}
+          onSubmit={handleNewIssue}
+          projectPrefix={projectPrefix}
+        />
+      )}
+
+      {showAssignAgent && (
+        <AgentAssignModal
+          columns={cols}
+          onClose={() => setShowAssignAgent(false)}
+          onAssign={handleBulkAssign}
         />
       )}
     </div>
