@@ -92,7 +92,7 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
             {(() => {
               const s = statusConfig[project.status] || statusConfig.inactive;
               return (
-                <span className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 ${s.bg} ${s.cls}`}>
+                <span className={`inline-flex items-center gap-1 text-[10px] leading-none px-1 py-[3px] ${s.bg} ${s.cls}`}>
                   <PxIcon icon={s.icon} size={10} />
                   {s.label}
                 </span>
@@ -152,7 +152,7 @@ function ProjectRow({ project, onClick }: { project: Project; onClick: () => voi
           {(() => {
             const s = statusConfig[project.status] || statusConfig.inactive;
             return (
-              <span className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 ${s.bg} ${s.cls}`}>
+              <span className={`inline-flex items-center gap-1 text-[10px] leading-none px-1 py-[3px] ${s.bg} ${s.cls}`}>
                 <PxIcon icon={s.icon} size={10} />
                 {s.label}
               </span>
