@@ -12,7 +12,7 @@ import DeploymentsPanel from "@/components/DeploymentsPanel";
 import KanbanBoard from "@/components/KanbanBoard";
 import TopBar from "@/components/TopBar";
 import CommandPalette from "@/components/CommandPalette";
-import NotificationPanel from "@/components/NotificationPanel";
+import NotificationPanel, { getUnreadSeverity } from "@/components/NotificationPanel";
 
 const Index = () => {
   const { id: projectId } = useParams();
@@ -122,6 +122,7 @@ const Index = () => {
           activeView={activeView}
           onSearchClick={() => setCmdOpen(true)}
           onNotificationClick={() => setNotifOpen(true)}
+          notifSeverity={getUnreadSeverity()}
         />
         <div className="flex flex-1 min-h-0">
           {renderMainContent()}

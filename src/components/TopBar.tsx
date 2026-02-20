@@ -1,15 +1,22 @@
 import PxIcon from "./PxIcon";
 import logoSaken from "@/assets/logo-saken.png";
+import type { NotifSeverity } from "./NotificationPanel";
+
+const severityBellColor: Record<NotifSeverity, string> = {
+  success: "bg-success",
+  warning: "bg-warning",
+  error: "bg-destructive",
+};
 
 interface Props {
   currentBranch: string;
   activeView: string;
   onSearchClick?: () => void;
   onNotificationClick?: () => void;
-  hasUnread?: boolean;
+  notifSeverity?: NotifSeverity | null;
 }
 
-export default function TopBar({ currentBranch, activeView, onSearchClick, onNotificationClick, hasUnread = true }: Props) {
+export default function TopBar({ currentBranch, activeView, onSearchClick, onNotificationClick, notifSeverity }: Props) {
   return (
     <div className="flex items-center justify-between h-12 px-4 bg-card border-b border-border">
       {/* Left: project + branch */}
@@ -41,7 +48,9 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
           title="Notifications"
         >
           <PxIcon icon="notification" size={16} />
-          {hasUnread && <span className="absolute top-1 right-1 w-2 h-2 bg-success rounded-full animate-notif-blink" />}
+          {notifSeverity && (
+            <span className={`absolute top-1 right-1 w-2 h-2 ${severityBellColor[notifSeverity]} rounded-full animate-notif-blink`} />
+          )}
         </button>
       </div>
     </div>
