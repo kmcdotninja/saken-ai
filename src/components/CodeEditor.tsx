@@ -19,12 +19,44 @@ interface Props {
 }
 
 export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }: Props) {
+  if (tabs.length === 0) {
+    return (
+      <div className="flex-1 flex flex-col bg-background min-w-0 min-h-0 overflow-hidden">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <PxIcon icon="file" size={48} className="mx-auto text-muted-foreground/20" />
+            <div className="space-y-1.5">
+              <p className="text-sm font-medium text-muted-foreground">No files open</p>
+              <p className="text-xs text-muted-foreground/60">Open a file from the explorer or use <kbd className="px-1.5 py-0.5 bg-muted border border-border text-[10px]">⌘K</kbd> to search</p>
+            </div>
+            <div className="flex flex-col items-center gap-2 pt-2 text-xs text-muted-foreground/50">
+              <div className="flex items-center gap-2">
+                <PxIcon icon="folder" size={14} />
+                <span>Browse files in the explorer</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <PxIcon icon="search" size={14} />
+                <span>Search files, issues, commands</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <PxIcon icon="git-branch" size={14} />
+                <span>Switch branches or view history</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Status bar */}
+        <div className="flex items-center justify-between px-3 h-6 bg-card border-t border-border text-xs text-muted-foreground">
+          <span>No file selected</span>
+        </div>
+      </div>
+    );
+  }
+
   const file = fileContents[activeTab];
   const lines = file?.lines ?? [];
   const lang = file?.language ?? "Plain Text";
   const filePath = file?.path ?? activeTab;
-
-  // Split path into segments for breadcrumb
   const pathParts = filePath.split("/");
 
   return (
