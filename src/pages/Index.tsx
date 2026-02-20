@@ -33,15 +33,9 @@ const Index = () => {
     return () => window.removeEventListener("keydown", onKey);
   }, [toggleCmd]);
 
-  // Auto-collapse on smaller screens
+  // Auto-collapse on smaller screens on first load only
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 1279px)");
-    const handler = (e: MediaQueryListEvent | MediaQueryList) => {
-      if (e.matches) setAgentPanelOpen(false);
-    };
-    handler(mq);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    if (window.innerWidth < 1280) setAgentPanelOpen(false);
   }, []);
 
   const handleSelectFile = (name: string) => {

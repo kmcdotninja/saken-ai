@@ -13,14 +13,14 @@ interface Props {
 
 export default function AgentCollapsedStrip({ onExpand }: Props) {
   return (
-    <div className="w-12 bg-card border-l border-border flex flex-col items-center py-3 gap-3 shrink-0">
+    <div className="w-12 bg-card border-l border-border flex flex-col items-center py-2 gap-2 shrink-0">
       {/* Expand button */}
       <button
         onClick={onExpand}
-        className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+        className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent border border-border rounded transition-colors"
         title="Show AI Agents"
       >
-        <PxIcon icon="chevrons-left" size={14} />
+        <PxIcon icon="chevrons-left" size={16} />
       </button>
 
       <div className="w-6 border-t border-border" />
