@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bot, Send, Paperclip, Sparkles, X } from "lucide-react";
+import PxIcon from "./PxIcon";
 
 interface Message {
   role: "user" | "agent";
@@ -30,12 +30,12 @@ export default function AgentPanel() {
   const [input, setInput] = useState("");
 
   return (
-    <div className="w-80 bg-surface-1 border-l border-border flex flex-col h-full">
+    <div className="w-80 bg-card border-l border-border flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-4 h-12 border-b border-border">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-primary/20 flex items-center justify-center">
-            <Sparkles size={14} className="text-primary" />
+          <div className="w-6 h-6 bg-accent flex items-center justify-center">
+            <PxIcon icon="human-handsup" size={14} className="text-foreground" />
           </div>
           <span className="text-sm font-medium text-foreground">AI Agent</span>
         </div>
@@ -48,13 +48,13 @@ export default function AgentPanel() {
       </div>
 
       {/* Agent status */}
-      <div className="px-4 py-2.5 border-b border-border bg-surface-2/50">
+      <div className="px-4 py-2.5 border-b border-border bg-muted/50">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Bot size={14} />
+          <PxIcon icon="cpu" size={14} />
           <span>Working on <span className="text-foreground">Dashboard.tsx</span></span>
         </div>
-        <div className="mt-1.5 h-1 bg-surface-3 rounded-full overflow-hidden">
-          <div className="h-full w-3/5 bg-primary rounded-full transition-all" />
+        <div className="mt-1.5 h-1 bg-accent overflow-hidden">
+          <div className="h-full w-3/5 bg-foreground transition-all" />
         </div>
       </div>
 
@@ -62,10 +62,10 @@ export default function AgentPanel() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, i) => (
           <div key={i} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
-            <div className={`max-w-[90%] rounded-lg px-3 py-2 text-sm ${
+            <div className={`max-w-[90%] px-3 py-2 text-sm ${
               msg.role === "user"
-                ? "bg-primary text-primary-foreground"
-                : "bg-surface-2 text-foreground"
+                ? "bg-foreground text-background"
+                : "bg-muted text-foreground"
             }`}>
               <p className="whitespace-pre-wrap">{msg.content}</p>
             </div>
@@ -76,15 +76,15 @@ export default function AgentPanel() {
 
       {/* Input */}
       <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-2 bg-surface-2 rounded-lg px-3 py-2">
+        <div className="flex items-center gap-2 bg-muted px-3 py-2">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask the agent..."
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
           />
-          <button className="text-muted-foreground hover:text-foreground"><Paperclip size={16} /></button>
-          <button className="text-primary hover:text-primary/80"><Send size={16} /></button>
+          <button className="text-muted-foreground hover:text-foreground"><PxIcon icon="paperclip" size={16} /></button>
+          <button className="text-foreground hover:text-foreground/80"><PxIcon icon="mail" size={16} /></button>
         </div>
       </div>
     </div>

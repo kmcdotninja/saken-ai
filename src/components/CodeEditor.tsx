@@ -1,4 +1,4 @@
-import { X, MoreHorizontal } from "lucide-react";
+import PxIcon from "./PxIcon";
 
 const codeLines = [
   { num: 1, content: [{ text: "import", cls: "keyword" }, { text: " { ", cls: "variable" }, { text: "useState", cls: "function" }, { text: ", ", cls: "variable" }, { text: "useEffect", cls: "function" }, { text: " } ", cls: "variable" }, { text: "from", cls: "keyword" }, { text: " ", cls: "" }, { text: '"react"', cls: "string" }, { text: ";", cls: "variable" }] },
@@ -53,32 +53,32 @@ interface Props {
 
 export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }: Props) {
   return (
-    <div className="flex-1 flex flex-col bg-surface-0 min-w-0">
+    <div className="flex-1 flex flex-col bg-background min-w-0">
       {/* Tabs */}
-      <div className="flex items-center h-9 bg-surface-1 border-b border-border overflow-x-auto">
+      <div className="flex items-center h-9 bg-card border-b border-border overflow-x-auto">
         {tabs.map((tab) => (
           <div
             key={tab}
             onClick={() => onSelectTab(tab)}
             className={`flex items-center gap-2 px-3 h-full text-sm cursor-pointer border-r border-border whitespace-nowrap ${
               tab === activeTab
-                ? "bg-surface-0 text-foreground border-t-2 border-t-primary"
+                ? "bg-background text-foreground border-t-2 border-t-foreground"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <span>{tab}</span>
             <button
               onClick={(e) => { e.stopPropagation(); onCloseTab(tab); }}
-              className="opacity-0 group-hover:opacity-100 hover:bg-surface-3 rounded p-0.5"
+              className="opacity-0 group-hover:opacity-100 hover:bg-accent p-0.5"
             >
-              <X size={12} />
+              <PxIcon icon="close" size={12} />
             </button>
           </div>
         ))}
       </div>
 
       {/* Breadcrumb */}
-      <div className="flex items-center px-4 h-7 text-xs text-muted-foreground bg-surface-0 border-b border-border">
+      <div className="flex items-center px-4 h-7 text-xs text-muted-foreground bg-background border-b border-border">
         <span>src</span>
         <span className="mx-1">/</span>
         <span>components</span>
@@ -90,7 +90,7 @@ export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }:
       <div className="flex-1 overflow-auto font-mono text-sm leading-6">
         <div className="py-2">
           {codeLines.map((line) => (
-            <div key={line.num} className="flex hover:bg-surface-1/50 px-2">
+            <div key={line.num} className="flex hover:bg-card/50 px-2">
               <span className="line-number text-xs leading-6">{line.num}</span>
               <pre className="flex-1">
                 {line.content.length === 0 ? "\n" : line.content.map((token, i) => (
@@ -103,7 +103,7 @@ export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }:
       </div>
 
       {/* Status bar */}
-      <div className="flex items-center justify-between px-3 h-6 bg-surface-1 border-t border-border text-xs text-muted-foreground">
+      <div className="flex items-center justify-between px-3 h-6 bg-card border-t border-border text-xs text-muted-foreground">
         <div className="flex items-center gap-3">
           <span>TypeScript React</span>
           <span>UTF-8</span>

@@ -1,8 +1,5 @@
 import { useState } from "react";
-import {
-  FolderOpen, FileText, ChevronRight, ChevronDown, Folder,
-  MoreHorizontal, Plus
-} from "lucide-react";
+import PxIcon from "./PxIcon";
 
 interface FileNode {
   name: string;
@@ -53,11 +50,11 @@ function TreeItem({ node, depth = 0, activeFile, onSelect }: {
       <div>
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center gap-1.5 w-full px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-2 rounded transition-colors"
+          className="flex items-center gap-1.5 w-full px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           style={{ paddingLeft: `${depth * 12 + 8}px` }}
         >
-          {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-          <Folder size={14} className="text-primary/60" />
+          <PxIcon icon={open ? "chevron-down" : "chevron-right"} size={14} />
+          <PxIcon icon={open ? "folder" : "folder"} size={14} className="text-muted-foreground" />
           <span>{node.name}</span>
         </button>
         {open && node.children?.map((child) => (
@@ -70,12 +67,12 @@ function TreeItem({ node, depth = 0, activeFile, onSelect }: {
   return (
     <button
       onClick={() => onSelect(node.name)}
-      className={`flex items-center gap-1.5 w-full px-2 py-1 text-sm rounded transition-colors ${
-        isActive ? "bg-surface-3 text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-surface-2"
+      className={`flex items-center gap-1.5 w-full px-2 py-1 text-sm transition-colors ${
+        isActive ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent"
       }`}
       style={{ paddingLeft: `${depth * 12 + 22}px` }}
     >
-      <FileText size={14} className={isActive ? "text-primary" : ""} />
+      <PxIcon icon="file" size={14} className={isActive ? "text-foreground" : ""} />
       <span>{node.name}</span>
     </button>
   );
@@ -88,12 +85,12 @@ interface Props {
 
 export default function FileExplorer({ activeFile, onSelectFile }: Props) {
   return (
-    <div className="w-60 bg-surface-1 border-r border-border flex flex-col h-full">
+    <div className="w-60 bg-card border-r border-border flex flex-col h-full">
       <div className="flex items-center justify-between px-3 h-10 border-b border-border">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Explorer</span>
         <div className="flex gap-1">
-          <button className="p-1 text-muted-foreground hover:text-foreground rounded"><Plus size={14} /></button>
-          <button className="p-1 text-muted-foreground hover:text-foreground rounded"><MoreHorizontal size={14} /></button>
+          <button className="p-1 text-muted-foreground hover:text-foreground"><PxIcon icon="plus" size={14} /></button>
+          <button className="p-1 text-muted-foreground hover:text-foreground"><PxIcon icon="more-horizontal" size={14} /></button>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto py-1">

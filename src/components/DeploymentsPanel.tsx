@@ -1,7 +1,4 @@
-import {
-  Rocket, CheckCircle2, Clock, AlertCircle, ExternalLink,
-  RotateCcw, Globe
-} from "lucide-react";
+import PxIcon from "./PxIcon";
 
 interface Deployment {
   id: string;
@@ -23,46 +20,46 @@ const deployments: Deployment[] = [
   { id: "dpl_5", env: "staging", status: "ready", branch: "main", commit: "d8c9b0a", commitMsg: "feat: implement dark mode", time: "5h ago", duration: "38s", url: "staging.nexusdev.io" },
 ];
 
-const statusBadge = {
-  ready: { icon: CheckCircle2, text: "Ready", cls: "text-success bg-success/10" },
-  building: { icon: Clock, text: "Building", cls: "text-warning bg-warning/10" },
-  failed: { icon: AlertCircle, text: "Failed", cls: "text-destructive bg-destructive/10" },
-  queued: { icon: Clock, text: "Queued", cls: "text-muted-foreground bg-surface-3" },
+const statusConfig: Record<string, { icon: string; text: string; cls: string }> = {
+  ready: { icon: "check", text: "Ready", cls: "text-success bg-success/10" },
+  building: { icon: "clock", text: "Building", cls: "text-warning bg-warning/10" },
+  failed: { icon: "close", text: "Failed", cls: "text-destructive bg-destructive/10" },
+  queued: { icon: "clock", text: "Queued", cls: "text-muted-foreground bg-muted" },
 };
 
-const envBadge = {
+const envBadge: Record<string, string> = {
   production: "bg-success/10 text-success border-success/20",
-  preview: "bg-primary/10 text-primary border-primary/20",
+  preview: "bg-foreground/10 text-foreground border-foreground/20",
   staging: "bg-warning/10 text-warning border-warning/20",
 };
 
 export default function DeploymentsPanel() {
   return (
-    <div className="flex-1 overflow-y-auto bg-surface-0 p-6">
+    <div className="flex-1 overflow-y-auto bg-background p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Rocket size={18} className="text-primary" />
+            <PxIcon icon="cloud-upload" size={18} className="text-foreground" />
             <h2 className="text-lg font-semibold text-foreground">Deployments</h2>
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Globe size={14} />
+            <PxIcon icon="globe" size={14} />
             <span className="font-mono">app.nexusdev.io</span>
-            <ExternalLink size={12} className="text-primary cursor-pointer" />
+            <PxIcon icon="open" size={12} className="text-foreground cursor-pointer" />
           </div>
         </div>
 
         <div className="space-y-3">
           {deployments.map((d) => {
-            const badge = statusBadge[d.status];
+            const badge = statusConfig[d.status];
             return (
-              <div key={d.id} className="bg-surface-1 rounded-lg border border-border p-4 hover:border-border/80 transition-colors">
+              <div key={d.id} className="bg-card border border-border p-4 hover:border-foreground/20 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs ${badge.cls}`}>
-                    <badge.icon size={12} className={d.status === "building" ? "animate-spin" : ""} />
+                  <div className={`flex items-center gap-1.5 px-2 py-1 text-xs ${badge.cls}`}>
+                    <PxIcon icon={badge.icon} size={12} className={d.status === "building" ? "animate-spin" : ""} />
                     {badge.text}
                   </div>
-                  <span className={`text-xs px-2 py-0.5 rounded border ${envBadge[d.env]}`}>{d.env}</span>
+                  <span className={`text-xs px-2 py-0.5 border ${envBadge[d.env]}`}>{d.env}</span>
                   <div className="flex-1 min-w-0">
                     <span className="text-sm text-foreground">{d.commitMsg}</span>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
@@ -75,10 +72,10 @@ export default function DeploymentsPanel() {
                     <span>{d.duration}</span>
                     <span>{d.time}</span>
                     {d.status === "failed" && (
-                      <button className="text-primary hover:text-primary/80"><RotateCcw size={14} /></button>
+                      <button className="text-foreground hover:text-foreground/80"><PxIcon icon="reload" size={14} /></button>
                     )}
                     {d.url && (
-                      <button className="text-primary hover:text-primary/80"><ExternalLink size={14} /></button>
+                      <button className="text-foreground hover:text-foreground/80"><PxIcon icon="open" size={14} /></button>
                     )}
                   </div>
                 </div>

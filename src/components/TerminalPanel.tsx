@@ -1,5 +1,5 @@
-import { ChevronDown, ChevronRight, TerminalSquare } from "lucide-react";
 import { useState } from "react";
+import PxIcon from "./PxIcon";
 
 const terminalLines = [
   { type: "cmd", text: "$ npm run build" },
@@ -17,13 +17,13 @@ export default function TerminalPanel() {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className={`bg-surface-1 border-t border-border flex flex-col ${collapsed ? "h-8" : "h-44"} transition-all`}>
+    <div className={`bg-card border-t border-border flex flex-col ${collapsed ? "h-8" : "h-44"} transition-all`}>
       <button
         onClick={() => setCollapsed(!collapsed)}
         className="flex items-center gap-2 px-3 h-8 min-h-[2rem] text-xs text-muted-foreground hover:text-foreground border-b border-border"
       >
-        {collapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
-        <TerminalSquare size={12} />
+        <PxIcon icon={collapsed ? "chevron-right" : "chevron-down"} size={12} />
+        <PxIcon icon="terminal" size={12} />
         <span className="uppercase tracking-wider font-medium">Terminal</span>
         <span className="ml-auto text-xs text-muted-foreground">bash</span>
       </button>

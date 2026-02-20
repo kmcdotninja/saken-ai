@@ -1,9 +1,6 @@
 import { useState } from "react";
-import {
-  X, Bot, MessageSquare, Clock, CheckCircle2, Circle, ArrowUp,
-  Flame, Sparkles, Send, User, ChevronDown
-} from "lucide-react";
-import { agents, type KanbanCard, type Agent } from "@/data/kanban-data";
+import { agents, type KanbanCard } from "@/data/kanban-data";
+import PxIcon from "./PxIcon";
 
 interface Props {
   card: KanbanCard;
@@ -11,11 +8,11 @@ interface Props {
   onReassign: (cardId: string, agentId: string) => void;
 }
 
-const priorityConfig = {
-  urgent: { icon: Flame, cls: "text-destructive", label: "Urgent" },
-  high: { icon: ArrowUp, cls: "text-warning", label: "High" },
-  medium: { icon: Circle, cls: "text-muted-foreground", label: "Medium" },
-  low: { icon: Circle, cls: "text-muted-foreground", label: "Low" },
+const priorityConfig: Record<string, { icon: string; cls: string; label: string }> = {
+  urgent: { icon: "alert", cls: "text-destructive", label: "Urgent" },
+  high: { icon: "arrow-up", cls: "text-warning", label: "High" },
+  medium: { icon: "circle", cls: "text-muted-foreground", label: "Medium" },
+  low: { icon: "circle", cls: "text-muted-foreground", label: "Low" },
 };
 
 const mockComments = [
@@ -38,7 +35,6 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
 
   const agent = agents.find((a) => a.id === card.assignee);
   const prio = priorityConfig[card.priority];
-  const PrioIcon = prio.icon;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
@@ -51,12 +47,12 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
           <div className="flex items-center gap-3">
             <span className="text-xs font-mono text-muted-foreground">{card.id}</span>
             <span className={`flex items-center gap-1 text-[11px] ${prio.cls}`}>
-              <PrioIcon size={12} />
+              <PxIcon icon={prio.icon} size={12} />
               {prio.label}
             </span>
           </div>
           <button onClick={onClose} className="p-1 text-muted-foreground hover:text-foreground">
-            <X size={16} />
+            <PxIcon icon="close" size={16} />
           </button>
         </div>
 
@@ -68,7 +64,6 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
 
             {/* Meta */}
             <div className="flex flex-wrap gap-4 mb-5 text-xs">
-              {/* Assignee */}
               <div className="relative">
                 <span className="text-muted-foreground block mb-1">Assignee</span>
                 <button
@@ -81,7 +76,7 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
                       <span className="text-foreground">{agent.name}</span>
                     </>
                   )}
-                  <ChevronDown size={10} className="text-muted-foreground" />
+                  <PxIcon icon="chevron-down" size={10} className="text-muted-foreground" />
                 </button>
                 {showReassign && (
                   <div className="absolute top-full left-0 mt-1 bg-card border border-border z-10 w-48">
@@ -100,7 +95,6 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
                 )}
               </div>
 
-              {/* Labels */}
               <div>
                 <span className="text-muted-foreground block mb-1">Labels</span>
                 <div className="flex gap-1">
@@ -110,7 +104,6 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
                 </div>
               </div>
 
-              {/* Points */}
               {card.points && (
                 <div>
                   <span className="text-muted-foreground block mb-1">Points</span>
@@ -118,7 +111,6 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
                 </div>
               )}
 
-              {/* Subtasks */}
               {card.subtasks && (
                 <div>
                   <span className="text-muted-foreground block mb-1">Subtasks</span>
@@ -134,13 +126,13 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
               <div className="flex items-start gap-3 px-4 py-3 bg-muted border border-border mb-5">
                 <div className="relative shrink-0">
                   <img src={agent.avatar} alt={agent.name} className="w-7 h-7 rounded-full object-cover" />
-                  <Bot size={10} className="absolute -bottom-0.5 -right-0.5 text-foreground" />
+                  <PxIcon icon="cpu" size={10} className="absolute -bottom-0.5 -right-0.5 text-foreground" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className={`text-xs font-medium ${agent.color}`}>{agent.name}</span>
                   <p className="text-sm text-muted-foreground mt-0.5">{card.agentAction}</p>
                 </div>
-                <Sparkles size={14} className="text-foreground animate-pulse-dot shrink-0 mt-1" />
+                <PxIcon icon="zap" size={14} className="text-foreground animate-pulse-dot shrink-0 mt-1" />
               </div>
             )}
           </div>
@@ -150,16 +142,16 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
             <div className="flex px-5 gap-0">
               <button
                 onClick={() => setActiveTab("comments")}
-                className={`px-3 py-2 text-xs border-b-2 ${activeTab === "comments" ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+                className={`px-3 py-2 text-xs border-b-2 flex items-center gap-1 ${activeTab === "comments" ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
               >
-                <MessageSquare size={12} className="inline mr-1" />
+                <PxIcon icon="message" size={12} />
                 Comments
               </button>
               <button
                 onClick={() => setActiveTab("activity")}
-                className={`px-3 py-2 text-xs border-b-2 ${activeTab === "activity" ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+                className={`px-3 py-2 text-xs border-b-2 flex items-center gap-1 ${activeTab === "activity" ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
               >
-                <Bot size={12} className="inline mr-1" />
+                <PxIcon icon="cpu" size={12} />
                 Agent Activity
               </button>
             </div>
@@ -175,7 +167,7 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
                           <img src={commentAgent.avatar} alt={commentAgent.name} className="w-6 h-6 rounded-full object-cover shrink-0 mt-0.5" />
                         ) : (
                           <div className="w-6 h-6 bg-accent flex items-center justify-center shrink-0 mt-0.5">
-                            <User size={12} />
+                            <PxIcon icon="user" size={12} />
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
@@ -190,7 +182,6 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
                       </div>
                     );
                   })}
-                  {/* Comment input */}
                   <div className="flex gap-2 mt-3 pt-3 border-t border-border">
                     <input
                       type="text"
@@ -200,7 +191,7 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
                       className="flex-1 bg-muted border border-border px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground outline-none"
                     />
                     <button className="px-3 py-2 bg-foreground text-background text-xs hover:bg-foreground/90">
-                      <Send size={12} />
+                      <PxIcon icon="mail" size={12} />
                     </button>
                   </div>
                 </div>
