@@ -16,7 +16,7 @@ const activityLog = [
   { agentId: "bjorn", action: "Scaled up instances for", target: "US-East region", time: "8m ago" },
 ];
 
-export default function AgentActivityBar() {
+export default function AgentActivityBar({ onCollapse }: { onCollapse?: () => void }) {
   return (
     <div className="w-72 bg-card border-l border-border flex flex-col h-full">
       {/* Header */}
@@ -27,6 +27,11 @@ export default function AgentActivityBar() {
           <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-dot" />
           3 active
         </span>
+        {onCollapse && (
+          <button onClick={onCollapse} className="p-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors ml-1" title="Collapse panel">
+            <PxIcon icon="chevrons-right" size={14} />
+          </button>
+        )}
       </div>
 
       {/* Agent cards */}

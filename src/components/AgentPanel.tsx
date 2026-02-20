@@ -38,7 +38,7 @@ function getTimestamp(): string {
   return "just now";
 }
 
-export default function AgentPanel() {
+export default function AgentPanel({ onCollapse }: { onCollapse?: () => void }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -113,10 +113,17 @@ export default function AgentPanel() {
           </div>
           <span className="text-sm font-medium text-foreground">AI Agent</span>
         </div>
-        <span className="flex items-center gap-1.5 text-xs text-success">
-          <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-dot" />
-          Active
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="flex items-center gap-1.5 text-xs text-success">
+            <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-dot" />
+            Active
+          </span>
+          {onCollapse && (
+            <button onClick={onCollapse} className="p-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="Collapse panel">
+              <PxIcon icon="chevrons-right" size={14} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Agent status */}
