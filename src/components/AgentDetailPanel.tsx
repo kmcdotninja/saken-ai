@@ -308,11 +308,14 @@ export default function AgentDetailPanel({ agent, onBack }: Props) {
         </div>
 
         {/* Commits */}
-        <div className="px-4 py-3">
-          <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
-            Recent Commits <span className="text-foreground ml-1">{commits.length}</span>
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium sticky top-0 bg-card z-10 border-b border-border">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              Recent Commits <span className="text-foreground ml-1">{commits.length}</span>
+            </div>
           </div>
-          <div className="space-y-0.5">
+          <div className="px-4 py-1 space-y-0.5">
             {commits.map((c) => (
               <div key={c.hash} className="px-2 py-2 hover:bg-accent/50 transition-colors animate-slide-in-activity">
                 <div className="flex items-start gap-2">
