@@ -93,8 +93,9 @@ export default {
           "50%": { boxShadow: "0 0 0 2px hsl(var(--foreground) / 0.15)" },
         },
         "agent-pulse": {
-          "0%, 100%": { boxShadow: "0 0 0 0 hsl(var(--success) / 0.4)", transform: "scale(1)" },
-          "50%": { boxShadow: "0 0 0 4px hsl(var(--success) / 0)", transform: "scale(1.05)" },
+          "0%": { transform: "scale(1)", opacity: "0.7" },
+          "50%": { transform: "scale(1.35)", opacity: "0" },
+          "100%": { transform: "scale(1.35)", opacity: "0" },
         },
       },
       animation: {
@@ -105,7 +106,7 @@ export default {
         "slide-up": "slide-up 0.25s ease-out forwards",
         "pulse-dot": "pulse-dot 1.5s ease-in-out infinite",
         "pixel-glow": "pixel-glow 2s ease-in-out infinite",
-        "agent-pulse": "agent-pulse 2s ease-in-out infinite",
+        "agent-pulse": "agent-pulse 1.5s ease-out infinite",
       },
     },
   },

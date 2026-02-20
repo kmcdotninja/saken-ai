@@ -30,11 +30,14 @@ export default function AgentCollapsedStrip({ onExpand }: Props) {
         const isWorking = agent.status === "working";
         return (
           <div key={agent.id} className="relative group" title={`${agent.name} — ${agent.role}`}>
-            <div className={`relative ${isWorking ? "animate-agent-pulse" : ""}`}>
+            <div className="relative">
+              {isWorking && (
+                <span className="absolute inset-0 rounded-full animate-agent-pulse ring-2 ring-primary" />
+              )}
               <img
                 src={agent.avatar}
                 alt={agent.name}
-                className="w-8 h-8 rounded-full object-cover ring-1 ring-border"
+                className="w-8 h-8 rounded-full object-cover ring-1 ring-border relative z-10"
               />
               {/* Status dot */}
               <span
