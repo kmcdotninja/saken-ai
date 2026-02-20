@@ -28,7 +28,7 @@ export default function CodeEditor({ tabs, activeTab, onSelectTab, onCloseTab }:
   const pathParts = filePath.split("/");
 
   return (
-    <div className="flex-1 flex flex-col bg-background min-w-0">
+    <div className="flex-1 flex flex-col bg-background min-w-0 min-h-0 overflow-hidden">
       {/* Tabs */}
       <div className="flex items-center h-9 bg-card border-b border-border overflow-x-auto">
         {tabs.map((tab) => (
