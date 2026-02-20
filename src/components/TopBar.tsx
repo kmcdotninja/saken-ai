@@ -50,7 +50,7 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
         >
           <PxIcon icon="notification" size={16} />
           <span
-            className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-success"
+            className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-primary"
             style={{ zIndex: 10 }}
           />
         </button>
