@@ -20,7 +20,7 @@ export default function AgentCollapsedStrip({ onExpand }: Props) {
         className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent border border-border rounded transition-colors"
         title="Show AI Agents"
       >
-        <PxIcon icon="chevrons-left" size={16} />
+        <PxIcon icon="chevron-left" size={16} />
       </button>
 
       <div className="w-6 border-t border-border" />

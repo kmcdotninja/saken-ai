@@ -119,8 +119,8 @@ export default function AgentPanel({ onCollapse }: { onCollapse?: () => void }) 
             Active
           </span>
           {onCollapse && (
-            <button onClick={onCollapse} className="p-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="Collapse panel">
-              <PxIcon icon="chevrons-right" size={14} />
+            <button onClick={onCollapse} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent border border-border rounded transition-colors" title="Hide panel">
+              <PxIcon icon="chevron-right" size={16} />
             </button>
           )}
         </div>
