@@ -4,13 +4,24 @@ import type { Agent } from "@/data/kanban-data";
 
 // ─── Simulated per-agent data ──────────────────────────────────
 
-interface AgentCommit {
-  hash: string;
+type ActivityType = "commit" | "task" | "comment" | "review" | "deploy" | "design";
+
+interface AgentActivity {
+  id: string;
+  type: ActivityType;
   message: string;
   time: string;
-  filesChanged: number;
-  additions: number;
-  deletions: number;
+  // commit-specific
+  hash?: string;
+  filesChanged?: number;
+  additions?: number;
+  deletions?: number;
+  // task-specific
+  taskId?: string;
+  from?: string;
+  to?: string;
+  // comment-specific
+  target?: string;
 }
 
 interface AgentStats {
@@ -24,69 +35,82 @@ interface AgentStats {
   currentStreak: number;
 }
 
-const agentCommitSeeds: Record<string, AgentCommit[]> = {
+const agentActivitySeeds: Record<string, AgentActivity[]> = {
   vlad: [
-    { hash: "a3f1c9e", message: "feat: implement WebSocket collaboration layer", time: "12m ago", filesChanged: 8, additions: 342, deletions: 47 },
-    { hash: "b7d2e4a", message: "refactor: extract auth middleware to shared module", time: "1h ago", filesChanged: 5, additions: 128, deletions: 89 },
-    { hash: "c9e8f3b", message: "fix: resolve race condition in real-time sync", time: "3h ago", filesChanged: 3, additions: 67, deletions: 22 },
-    { hash: "d1a4b6c", message: "perf: optimize query batching for dashboard", time: "5h ago", filesChanged: 4, additions: 201, deletions: 156 },
-    { hash: "e5c7d8f", message: "test: add integration tests for collab engine", time: "8h ago", filesChanged: 6, additions: 445, deletions: 12 },
-    { hash: "f2b9a1d", message: "feat: add cursor presence indicators", time: "12h ago", filesChanged: 7, additions: 289, deletions: 34 },
+    { id: "v1", type: "commit", message: "feat: implement WebSocket collaboration layer", time: "12m ago", hash: "a3f1c9e", filesChanged: 8, additions: 342, deletions: 47 },
+    { id: "v2", type: "task", message: "Moved 'Auth middleware' to In Progress", time: "25m ago", taskId: "NEX-42", from: "Todo", to: "In Progress" },
+    { id: "v3", type: "comment", message: "Left a comment on NEXUS-87", time: "45m ago", target: "NEXUS-87" },
+    { id: "v4", type: "commit", message: "refactor: extract auth middleware to shared module", time: "1h ago", hash: "b7d2e4a", filesChanged: 5, additions: 128, deletions: 89 },
+    { id: "v5", type: "review", message: "Approved PR #142 — dashboard refactor", time: "2h ago", target: "PR #142" },
+    { id: "v6", type: "task", message: "Moved 'WebSocket sync' to Done", time: "3h ago", taskId: "NEX-38", from: "In Progress", to: "Done" },
+    { id: "v7", type: "commit", message: "fix: resolve race condition in real-time sync", time: "3h ago", hash: "c9e8f3b", filesChanged: 3, additions: 67, deletions: 22 },
+    { id: "v8", type: "comment", message: "Replied to thread on PR #139", time: "4h ago", target: "PR #139" },
+    { id: "v9", type: "commit", message: "perf: optimize query batching for dashboard", time: "5h ago", hash: "d1a4b6c", filesChanged: 4, additions: 201, deletions: 156 },
   ],
   ivar: [
-    { hash: "i1a2b3c", message: "docs: update sprint planning template with velocity", time: "25m ago", filesChanged: 3, additions: 89, deletions: 15 },
-    { hash: "i4d5e6f", message: "feat: add burn-down chart to sprint dashboard", time: "2h ago", filesChanged: 4, additions: 156, deletions: 23 },
-    { hash: "i7g8h9i", message: "refactor: restructure backlog priority algorithm", time: "4h ago", filesChanged: 2, additions: 78, deletions: 45 },
-    { hash: "ij1k2l3", message: "feat: implement story point estimation helper", time: "7h ago", filesChanged: 5, additions: 234, deletions: 67 },
-    { hash: "im4n5o6", message: "fix: correct velocity calculation for partial sprints", time: "11h ago", filesChanged: 2, additions: 34, deletions: 18 },
+    { id: "i1", type: "task", message: "Moved 'Sprint planning' to In Progress", time: "10m ago", taskId: "AUR-12", from: "Todo", to: "In Progress" },
+    { id: "i2", type: "comment", message: "Updated acceptance criteria on AUR-15", time: "20m ago", target: "AUR-15" },
+    { id: "i3", type: "commit", message: "docs: update sprint planning template with velocity", time: "25m ago", hash: "i1a2b3c", filesChanged: 3, additions: 89, deletions: 15 },
+    { id: "i4", type: "task", message: "Moved 'Backlog grooming' to Done", time: "1h ago", taskId: "AUR-09", from: "In Review", to: "Done" },
+    { id: "i5", type: "review", message: "Requested changes on PR #98 — velocity calc", time: "2h ago", target: "PR #98" },
+    { id: "i6", type: "commit", message: "feat: add burn-down chart to sprint dashboard", time: "2h ago", hash: "i4d5e6f", filesChanged: 4, additions: 156, deletions: 23 },
+    { id: "i7", type: "comment", message: "Added note to sprint retro doc", time: "3h ago", target: "Sprint Retro" },
   ],
   bjorn: [
-    { hash: "b1x2y3z", message: "ops: configure auto-scaling for EU-West cluster", time: "8m ago", filesChanged: 4, additions: 112, deletions: 28 },
-    { hash: "b4w5v6u", message: "feat: add zero-downtime deployment pipeline", time: "1h ago", filesChanged: 6, additions: 267, deletions: 89 },
-    { hash: "b7t8s9r", message: "fix: resolve SSL certificate rotation issue", time: "3h ago", filesChanged: 2, additions: 45, deletions: 12 },
-    { hash: "bq1p2o3", message: "perf: optimize Docker layer caching strategy", time: "6h ago", filesChanged: 3, additions: 78, deletions: 56 },
-    { hash: "bn4m5l6", message: "ops: implement health check cascade for microservices", time: "9h ago", filesChanged: 8, additions: 345, deletions: 123 },
-    { hash: "bk7j8i9", message: "feat: add rollback automation on failure detection", time: "14h ago", filesChanged: 5, additions: 198, deletions: 67 },
+    { id: "b1", type: "deploy", message: "Deployed v2.4.1 to production", time: "5m ago", target: "production" },
+    { id: "b2", type: "commit", message: "ops: configure auto-scaling for EU-West cluster", time: "8m ago", hash: "b1x2y3z", filesChanged: 4, additions: 112, deletions: 28 },
+    { id: "b3", type: "task", message: "Moved 'SSL cert rotation' to Done", time: "30m ago", taskId: "PHN-22", from: "In Progress", to: "Done" },
+    { id: "b4", type: "comment", message: "Commented on infra monitoring alert", time: "45m ago", target: "Alert #301" },
+    { id: "b5", type: "commit", message: "feat: add zero-downtime deployment pipeline", time: "1h ago", hash: "b4w5v6u", filesChanged: 6, additions: 267, deletions: 89 },
+    { id: "b6", type: "deploy", message: "Deployed hotfix to staging", time: "2h ago", target: "staging" },
+    { id: "b7", type: "review", message: "Approved PR #155 — k8s helm chart update", time: "3h ago", target: "PR #155" },
+    { id: "b8", type: "commit", message: "fix: resolve SSL certificate rotation issue", time: "3h ago", hash: "b7t8s9r", filesChanged: 2, additions: 45, deletions: 12 },
   ],
   agnes: [
-    { hash: "ag1b2c3", message: "design: finalize dark mode token system", time: "18m ago", filesChanged: 12, additions: 456, deletions: 234 },
-    { hash: "ag4d5e6", message: "feat: create motion spec for page transitions", time: "2h ago", filesChanged: 4, additions: 189, deletions: 45 },
-    { hash: "ag7f8g9", message: "refactor: update component library to new grid system", time: "4h ago", filesChanged: 9, additions: 312, deletions: 178 },
-    { hash: "agh1i2j", message: "design: export icon set v2 with pixel-perfect variants", time: "7h ago", filesChanged: 24, additions: 567, deletions: 89 },
-    { hash: "agk3l4m", message: "fix: resolve spacing inconsistencies in onboarding flow", time: "10h ago", filesChanged: 6, additions: 78, deletions: 56 },
+    { id: "a1", type: "design", message: "Updated dark mode token palette in Figma", time: "15m ago", target: "Figma" },
+    { id: "a2", type: "commit", message: "design: finalize dark mode token system", time: "18m ago", hash: "ag1b2c3", filesChanged: 12, additions: 456, deletions: 234 },
+    { id: "a3", type: "comment", message: "Left feedback on onboarding flow mockup", time: "35m ago", target: "Figma comment" },
+    { id: "a4", type: "task", message: "Moved 'Icon set v2' to In Review", time: "1h ago", taskId: "SEN-18", from: "In Progress", to: "In Review" },
+    { id: "a5", type: "commit", message: "feat: create motion spec for page transitions", time: "2h ago", hash: "ag4d5e6", filesChanged: 4, additions: 189, deletions: 45 },
+    { id: "a6", type: "review", message: "Approved PR #130 — component library update", time: "3h ago", target: "PR #130" },
+    { id: "a7", type: "design", message: "Exported icon set v2 assets to shared drive", time: "4h ago", target: "Shared Drive" },
+    { id: "a8", type: "task", message: "Moved 'Motion spec' to Done", time: "5h ago", taskId: "SEN-14", from: "In Progress", to: "Done" },
   ],
 };
 
-// Extra commit templates for infinite real-time feed per agent
-const liveCommitTemplates: Record<string, { message: string; filesChanged: number; additions: number; deletions: number }[]> = {
+// Extra activity templates for infinite real-time feed per agent
+const liveActivityTemplates: Record<string, Omit<AgentActivity, "id" | "time">[]> = {
   vlad: [
-    { message: "feat: add optimistic updates for collaboration cursors", filesChanged: 3, additions: 145, deletions: 23 },
-    { message: "fix: handle disconnection gracefully in WS client", filesChanged: 2, additions: 67, deletions: 31 },
-    { message: "refactor: migrate auth tokens to HTTP-only cookies", filesChanged: 4, additions: 198, deletions: 112 },
-    { message: "perf: lazy-load editor plugins on demand", filesChanged: 5, additions: 89, deletions: 45 },
-    { message: "test: add e2e tests for multi-user editing", filesChanged: 3, additions: 312, deletions: 8 },
-    { message: "feat: implement undo/redo stack for collab ops", filesChanged: 6, additions: 256, deletions: 78 },
+    { type: "commit", message: "feat: add optimistic updates for collaboration cursors", hash: randomHash(), filesChanged: 3, additions: 145, deletions: 23 },
+    { type: "task", message: "Moved 'Undo/redo stack' to In Progress", taskId: "NEX-51", from: "Todo", to: "In Progress" },
+    { type: "comment", message: "Replied to code review on PR #148", target: "PR #148" },
+    { type: "commit", message: "fix: handle disconnection gracefully in WS client", hash: randomHash(), filesChanged: 2, additions: 67, deletions: 31 },
+    { type: "review", message: "Approved PR #150 — editor plugin lazy loading", target: "PR #150" },
+    { type: "task", message: "Moved 'Auth cookie migration' to Done", taskId: "NEX-44", from: "In Progress", to: "Done" },
+    { type: "commit", message: "refactor: migrate auth tokens to HTTP-only cookies", hash: randomHash(), filesChanged: 4, additions: 198, deletions: 112 },
   ],
   ivar: [
-    { message: "feat: add capacity planning widget to dashboard", filesChanged: 2, additions: 134, deletions: 12 },
-    { message: "docs: document sprint retrospective workflow", filesChanged: 1, additions: 89, deletions: 5 },
-    { message: "fix: recalculate velocity after scope change", filesChanged: 3, additions: 56, deletions: 34 },
-    { message: "feat: implement dependency graph for epics", filesChanged: 4, additions: 201, deletions: 45 },
-    { message: "refactor: simplify backlog sorting algorithm", filesChanged: 2, additions: 34, deletions: 67 },
+    { type: "task", message: "Moved 'Capacity planning' to In Review", taskId: "AUR-20", from: "In Progress", to: "In Review" },
+    { type: "commit", message: "feat: add capacity planning widget to dashboard", hash: randomHash(), filesChanged: 2, additions: 134, deletions: 12 },
+    { type: "comment", message: "Updated sprint goals in project wiki", target: "Wiki" },
+    { type: "task", message: "Moved 'Dependency graph' to In Progress", taskId: "AUR-22", from: "Todo", to: "In Progress" },
+    { type: "review", message: "Requested changes on PR #101 — backlog sort", target: "PR #101" },
   ],
   bjorn: [
-    { message: "ops: add Prometheus metrics for pod autoscaler", filesChanged: 3, additions: 156, deletions: 34 },
-    { message: "feat: implement canary deployment strategy", filesChanged: 5, additions: 289, deletions: 67 },
-    { message: "fix: resolve DNS propagation delay in failover", filesChanged: 2, additions: 45, deletions: 12 },
-    { message: "ops: optimize container image size by 40%", filesChanged: 3, additions: 23, deletions: 189 },
-    { message: "feat: add automated backup verification pipeline", filesChanged: 4, additions: 178, deletions: 34 },
+    { type: "deploy", message: "Deployed v2.4.2 to staging", target: "staging" },
+    { type: "commit", message: "ops: add Prometheus metrics for pod autoscaler", hash: randomHash(), filesChanged: 3, additions: 156, deletions: 34 },
+    { type: "task", message: "Moved 'Canary deploy' to In Progress", taskId: "PHN-28", from: "Todo", to: "In Progress" },
+    { type: "comment", message: "Updated runbook for failover procedure", target: "Runbook" },
+    { type: "deploy", message: "Deployed canary to 10% of traffic", target: "production-canary" },
+    { type: "commit", message: "feat: implement canary deployment strategy", hash: randomHash(), filesChanged: 5, additions: 289, deletions: 67 },
   ],
   agnes: [
-    { message: "design: create responsive grid breakpoint tokens", filesChanged: 8, additions: 234, deletions: 89 },
-    { message: "feat: add micro-interaction library for buttons", filesChanged: 5, additions: 312, deletions: 45 },
-    { message: "fix: correct color contrast ratios for WCAG AA", filesChanged: 12, additions: 156, deletions: 134 },
-    { message: "design: finalize illustration style guide", filesChanged: 6, additions: 89, deletions: 23 },
-    { message: "refactor: migrate to CSS custom properties for theming", filesChanged: 15, additions: 445, deletions: 312 },
+    { type: "design", message: "Published responsive grid tokens to Figma", target: "Figma" },
+    { type: "commit", message: "design: create responsive grid breakpoint tokens", hash: randomHash(), filesChanged: 8, additions: 234, deletions: 89 },
+    { type: "comment", message: "Left contrast ratio feedback on button styles", target: "Figma comment" },
+    { type: "task", message: "Moved 'Illustration guide' to In Review", taskId: "SEN-25", from: "In Progress", to: "In Review" },
+    { type: "review", message: "Approved PR #135 — micro-interaction library", target: "PR #135" },
+    { type: "design", message: "Exported updated illustration assets", target: "Shared Drive" },
   ],
 };
 
@@ -154,19 +178,19 @@ interface Props {
 
 export default function AgentDetailPanel({ agent, onBack }: Props) {
   const [hoveredCell, setHoveredCell] = useState<{ row: number; col: number } | null>(null);
-  const seedCommits = agentCommitSeeds[agent.id] || [];
-  const templates = liveCommitTemplates[agent.id] || liveCommitTemplates.vlad;
+  const seedActivities = agentActivitySeeds[agent.id] || [];
+  const templates = liveActivityTemplates[agent.id] || liveActivityTemplates.vlad;
   const stats = agentStats[agent.id] || agentStats.vlad;
   const specialties = agentSpecialties[agent.id] || [];
   const heatmap = useMemo(() => generateHeatmap(agent.id), [agent.id]);
   const totalActive = useMemo(() => heatmap.flat().filter((v) => v > 0).length, [heatmap]);
   const totalIdle = heatmap.flat().length - totalActive;
 
-  const [commits, setCommits] = useState<AgentCommit[]>(seedCommits);
+  const [activities, setActivities] = useState<AgentActivity[]>(seedActivities);
   const templateIdx = useRef(0);
 
   useEffect(() => {
-    setCommits(agentCommitSeeds[agent.id] || []);
+    setActivities(agentActivitySeeds[agent.id] || []);
     templateIdx.current = 0;
   }, [agent.id]);
 
@@ -174,15 +198,12 @@ export default function AgentDetailPanel({ agent, onBack }: Props) {
     const interval = setInterval(() => {
       const t = templates[templateIdx.current % templates.length];
       templateIdx.current++;
-      const newCommit: AgentCommit = {
-        hash: randomHash(),
-        message: t.message,
+      const newActivity: AgentActivity = {
+        ...t,
+        id: randomHash(),
         time: "just now",
-        filesChanged: t.filesChanged,
-        additions: t.additions,
-        deletions: t.deletions,
       };
-      setCommits((prev) => [newCommit, ...prev.slice(0, 14)]);
+      setActivities((prev) => [newActivity, ...prev.slice(0, 14)]);
     }, 5000 + Math.random() * 5000);
     return () => clearInterval(interval);
   }, [templates]);
@@ -333,35 +354,63 @@ export default function AgentDetailPanel({ agent, onBack }: Props) {
         </div>
       </div>
 
-      {/* Commits — independently scrollable */}
+      {/* Progress — independently scrollable */}
       <div className="flex-1 flex flex-col min-h-0">
         <div className="px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium shrink-0 bg-card z-10 border-b border-border">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            Recent Commits <span className="text-foreground ml-1">{commits.length}</span>
+            Recent Progress <span className="text-foreground ml-1">{activities.length}</span>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-4 py-1 space-y-0.5">
-          {commits.map((c) => (
-            <div key={c.hash} className="px-2 py-2 hover:bg-accent/50 transition-colors animate-slide-in-activity">
-              <div className="flex items-start gap-2">
-                <PxIcon icon="git-commit" size={12} className="text-muted-foreground mt-0.5 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-foreground truncate leading-relaxed">{c.message}</p>
-                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
-                    <span className="font-mono">{c.hash}</span>
-                    <span>·</span>
-                    <span>{c.time}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-[10px] mt-1">
-                    <span className="text-muted-foreground">{c.filesChanged} files</span>
-                    <span className="text-emerald-400">+{c.additions}</span>
-                    <span className="text-destructive">-{c.deletions}</span>
+          {activities.map((a) => {
+            const iconMap: Record<ActivityType, string> = {
+              commit: "git-commit",
+              task: "move",
+              comment: "message",
+              review: "check",
+              deploy: "upload",
+              design: "image",
+            };
+            const colorMap: Record<ActivityType, string> = {
+              commit: "text-muted-foreground",
+              task: "text-primary",
+              comment: "text-sky-400",
+              review: "text-success",
+              deploy: "text-warning",
+              design: "text-purple-400",
+            };
+            return (
+              <div key={a.id} className="px-2 py-2 hover:bg-accent/50 transition-colors animate-slide-in-activity">
+                <div className="flex items-start gap-2">
+                  <PxIcon icon={iconMap[a.type]} size={12} className={`${colorMap[a.type]} mt-0.5 shrink-0`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-foreground truncate leading-relaxed">{a.message}</p>
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
+                      {a.hash && <span className="font-mono">{a.hash}</span>}
+                      {a.hash && <span>·</span>}
+                      {a.from && a.to && (
+                        <>
+                          <span className="text-muted-foreground">{a.from}</span>
+                          <span>→</span>
+                          <span className="text-foreground">{a.to}</span>
+                          <span>·</span>
+                        </>
+                      )}
+                      <span>{a.time}</span>
+                    </div>
+                    {a.type === "commit" && a.filesChanged != null && (
+                      <div className="flex items-center gap-2 text-[10px] mt-1">
+                        <span className="text-muted-foreground">{a.filesChanged} files</span>
+                        <span className="text-emerald-400">+{a.additions}</span>
+                        <span className="text-destructive">-{a.deletions}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
