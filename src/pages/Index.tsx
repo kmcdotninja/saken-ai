@@ -3,14 +3,15 @@ import Sidebar from "@/components/Sidebar";
 import FileExplorer from "@/components/FileExplorer";
 import CodeEditor from "@/components/CodeEditor";
 import AgentPanel from "@/components/AgentPanel";
+import AgentActivityBar from "@/components/AgentActivityBar";
 import TerminalPanel from "@/components/TerminalPanel";
 import GitPanel from "@/components/GitPanel";
-import IssuesPanel from "@/components/IssuesPanel";
 import DeploymentsPanel from "@/components/DeploymentsPanel";
+import KanbanBoard from "@/components/KanbanBoard";
 import TopBar from "@/components/TopBar";
 
 const Index = () => {
-  const [activeView, setActiveView] = useState("editor");
+  const [activeView, setActiveView] = useState("board");
   const [activeFile, setActiveFile] = useState("Dashboard.tsx");
   const [tabs, setTabs] = useState(["Dashboard.tsx", "api.ts", "App.tsx"]);
   const [activeTab, setActiveTab] = useState("Dashboard.tsx");
@@ -35,11 +36,9 @@ const Index = () => {
     switch (activeView) {
       case "git":
         return <GitPanel />;
-      case "issues":
-        return <IssuesPanel />;
       case "deployments":
         return <DeploymentsPanel />;
-      default:
+      case "editor":
         return (
           <div className="flex flex-1 min-h-0">
             <FileExplorer activeFile={activeFile} onSelectFile={handleSelectFile} />
@@ -54,7 +53,15 @@ const Index = () => {
             </div>
           </div>
         );
+      default: // board
+        return <KanbanBoard />;
     }
+  };
+
+  const renderRightPanel = () => {
+    if (activeView === "board") return <AgentActivityBar />;
+    if (activeView === "editor") return <AgentPanel />;
+    return null;
   };
 
   return (
@@ -64,7 +71,7 @@ const Index = () => {
         <TopBar currentBranch="feat/dashboard-redesign" activeView={activeView} />
         <div className="flex flex-1 min-h-0">
           {renderMainContent()}
-          <AgentPanel />
+          {renderRightPanel()}
         </div>
       </div>
     </div>
