@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logoSaken from "@/assets/logo-saken.png";
+import ProfileSettingsPanel from "@/components/ProfileSettingsPanel";
 import PxIcon from "@/components/PxIcon";
 
 const statusConfig: Record<string, { icon: string; cls: string; bg: string; label: string }> = {
@@ -191,6 +192,7 @@ function ProjectRow({ project, onClick }: { project: Project; onClick: () => voi
 export default function Projects() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
 
   const filtered = projects.filter((p) =>
@@ -206,9 +208,12 @@ export default function Projects() {
         </div>
         <div className="flex-1" />
         <div className="flex flex-col items-center gap-1 py-3 border-t border-border">
-          <div className="w-8 h-8 bg-accent flex items-center justify-center">
+          <button
+            onClick={() => setProfileOpen(true)}
+            className="w-8 h-8 bg-accent flex items-center justify-center hover:bg-foreground/20 transition-colors cursor-pointer"
+          >
             <span className="text-foreground text-xs font-medium">JD</span>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -273,6 +278,7 @@ export default function Projects() {
           )}
         </div>
       </div>
+      {profileOpen && <ProfileSettingsPanel onClose={() => setProfileOpen(false)} />}
     </div>
   );
 }
