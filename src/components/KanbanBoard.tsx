@@ -6,6 +6,7 @@ import IssueModal from "./IssueModal";
 import NewIssueModal from "./NewIssueModal";
 import AgentAssignModal from "./AgentAssignModal";
 import PxIcon from "./PxIcon";
+import { toast } from "sonner";
 
 const priorityConfig: Record<string, { icon: string; cls: string; bg: string }> = {
   urgent: { icon: "alert", cls: "text-destructive", bg: "bg-destructive/10" },
@@ -163,9 +164,13 @@ export default function KanbanBoard({ projectId }: Props) {
         c.id === columnId ? { ...c, cards: [...c.cards, card] } : c
       )
     );
+    toast.success("Issue created", {
+      description: `${card.id} — ${card.title}`,
+    });
   };
 
   const handleBulkAssign = (cardIds: string[], agentId: string) => {
+    const agent = agents.find((a) => a.id === agentId);
     setCols((prev) =>
       prev.map((c) => ({
         ...c,
@@ -174,6 +179,9 @@ export default function KanbanBoard({ projectId }: Props) {
         ),
       }))
     );
+    toast.success("Agent assigned", {
+      description: `${agent?.name || "Agent"} assigned to ${cardIds.length} issue${cardIds.length > 1 ? "s" : ""}`,
+    });
   };
 
   // Reset when project changes
