@@ -1,6 +1,7 @@
 import avatarVlad from "@/assets/avatar-vlad.png";
 import avatarIvar from "@/assets/avatar-ivar.png";
 import avatarBjorn from "@/assets/avatar-bjorn.png";
+import avatarAgnes from "@/assets/avatar-agnes.png";
 
 export interface Agent {
   id: string;
@@ -39,6 +40,15 @@ export const agents: Agent[] = [
     color: "text-warning",
     statusColor: "bg-warning",
     status: "reviewing",
+  },
+  {
+    id: "agnes",
+    name: "Agnes",
+    role: "Design Agent",
+    avatar: avatarAgnes,
+    color: "text-purple-400",
+    statusColor: "bg-purple-400",
+    status: "working",
   },
 ];
 
