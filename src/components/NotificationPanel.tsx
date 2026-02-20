@@ -4,9 +4,12 @@ import avatarVlad from "@/assets/avatar-vlad.png";
 import avatarIvar from "@/assets/avatar-ivar.png";
 import avatarBjorn from "@/assets/avatar-bjorn.png";
 
+export type NotifSeverity = "success" | "error" | "warning";
+
 interface Notification {
   id: string;
   type: "agent" | "deploy" | "git" | "system";
+  severity: NotifSeverity;
   title: string;
   description: string;
   time: string;
@@ -15,10 +18,17 @@ interface Notification {
   icon?: string;
 }
 
+const severityDotColor: Record<NotifSeverity, string> = {
+  success: "bg-success",
+  warning: "bg-warning",
+  error: "bg-destructive",
+};
+
 const notifications: Notification[] = [
   {
     id: "n1",
     type: "agent",
+    severity: "success",
     title: "Vlad completed code review",
     description: "PR #142 — Real-time collaborative editing passed all checks.",
     time: "2m ago",
@@ -28,6 +38,7 @@ const notifications: Notification[] = [
   {
     id: "n2",
     type: "deploy",
+    severity: "success",
     title: "Deployment to US-East succeeded",
     description: "v2.4.1 deployed by Bjorn. All health checks passing.",
     time: "8m ago",
@@ -37,6 +48,7 @@ const notifications: Notification[] = [
   {
     id: "n3",
     type: "agent",
+    severity: "success",
     title: "Ivar drafted sprint insights",
     description: "Sprint 14 retrospective summary generated with 4 action items.",
     time: "15m ago",
@@ -46,6 +58,7 @@ const notifications: Notification[] = [
   {
     id: "n4",
     type: "git",
+    severity: "success",
     title: "Branch merged: feat/diff-viewer",
     description: "Vlad merged feat/diff-viewer into main. 23 files changed.",
     time: "32m ago",
@@ -55,6 +68,7 @@ const notifications: Notification[] = [
   {
     id: "n5",
     type: "deploy",
+    severity: "warning",
     title: "EU-West deployment in progress",
     description: "Bjorn is configuring health checks for the EU-West region.",
     time: "45m ago",
@@ -64,6 +78,7 @@ const notifications: Notification[] = [
   {
     id: "n6",
     type: "system",
+    severity: "success",
     title: "SSL certificate renewed",
     description: "Auto-renewal completed for nexus-platform.app",
     time: "1h ago",
@@ -73,6 +88,7 @@ const notifications: Notification[] = [
   {
     id: "n7",
     type: "agent",
+    severity: "success",
     title: "Vlad started NEXUS-189",
     description: "Implementing OT transform functions in collaboration.ts",
     time: "1.5h ago",
@@ -82,6 +98,7 @@ const notifications: Notification[] = [
   {
     id: "n8",
     type: "deploy",
+    severity: "error",
     title: "Staging build failed",
     description: "TypeScript error in DeploymentPipeline.tsx line 42.",
     time: "2h ago",
@@ -93,6 +110,14 @@ const notifications: Notification[] = [
 interface Props {
   open: boolean;
   onClose: () => void;
+}
+
+export function getUnreadSeverity(): NotifSeverity | null {
+  const unread = notifications.filter((n) => !n.read);
+  if (unread.length === 0) return null;
+  if (unread.some((n) => n.severity === "error")) return "error";
+  if (unread.some((n) => n.severity === "warning")) return "warning";
+  return "success";
 }
 
 export default function NotificationPanel({ open, onClose }: Props) {
@@ -179,7 +204,7 @@ export default function NotificationPanel({ open, onClose }: Props) {
                       {n.title}
                     </span>
                     {!n.read && (
-                      <span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0 mt-1.5" />
+                      <span className={`w-1.5 h-1.5 ${severityDotColor[n.severity]} rounded-full shrink-0 mt-1.5 animate-notif-blink`} />
                     )}
                   </div>
                   <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5 line-clamp-2">

@@ -42,7 +42,9 @@ export default function AgentCollapsedStrip({ onExpand }: Props) {
               {/* Status dot */}
               <span
                 className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-card z-20 ${
-                  isWorking ? "bg-success animate-notif-blink" : "bg-warning"
+                  isWorking ? "bg-success animate-notif-blink" :
+                  agent.status === "reviewing" ? "bg-warning animate-notif-blink" :
+                  "bg-muted-foreground"
                 }`}
               />
             </div>
