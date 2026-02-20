@@ -41,43 +41,43 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 220 20% 14%;
+    --background: 216 20% 97%;
+    --foreground: 220 25% 14%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 14%;
+    --card: 216 22% 100%;
+    --card-foreground: 220 25% 14%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 14%;
+    --popover: 216 22% 100%;
+    --popover-foreground: 220 25% 14%;
 
     --primary: 24 95% 53%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 92%;
-    --secondary-foreground: 220 15% 35%;
+    --secondary: 216 18% 93%;
+    --secondary-foreground: 218 15% 38%;
 
-    --muted: 220 14% 94%;
-    --muted-foreground: 215 12% 45%;
+    --muted: 216 18% 94%;
+    --muted-foreground: 218 14% 50%;
 
-    --accent: 220 14% 90%;
-    --accent-foreground: 220 20% 14%;
+    --accent: 216 18% 91%;
+    --accent-foreground: 220 25% 14%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 87%;
-    --input: 220 13% 87%;
+    --border: 216 16% 88%;
+    --input: 216 16% 88%;
     --ring: 24 95% 53%;
 
     --radius: 0px;
 
-    --sidebar-background: 0 0% 97%;
-    --sidebar-foreground: 215 12% 40%;
+    --sidebar-background: 216 20% 96%;
+    --sidebar-foreground: 218 14% 42%;
     --sidebar-primary: 24 95% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 92%;
-    --sidebar-accent-foreground: 220 20% 14%;
-    --sidebar-border: 220 13% 87%;
+    --sidebar-accent: 216 18% 93%;
+    --sidebar-accent-foreground: 220 25% 14%;
+    --sidebar-border: 216 16% 88%;
     --sidebar-ring: 24 95% 53%;
 
     --success: 142 71% 45%;
@@ -85,17 +85,17 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 0%;
 
-    --surface-0: 0 0% 98%;
-    --surface-1: 0 0% 96%;
-    --surface-2: 220 14% 94%;
-    --surface-3: 220 13% 90%;
+    --surface-0: 216 20% 97%;
+    --surface-1: 216 20% 95%;
+    --surface-2: 216 18% 93%;
+    --surface-3: 216 16% 90%;
 
     --code-keyword: 24 80% 45%;
     --code-string: 142 71% 35%;
     --code-type: 38 92% 45%;
-    --code-comment: 215 12% 55%;
-    --code-function: 220 20% 35%;
-    --code-variable: 220 20% 25%;
+    --code-comment: 218 14% 55%;
+    --code-function: 220 25% 35%;
+    --code-variable: 220 25% 25%;
     --code-number: 24 60% 40%;
   }
 
