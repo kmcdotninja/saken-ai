@@ -4,9 +4,10 @@ import logoSaken from "@/assets/logo-saken.png";
 interface Props {
   currentBranch: string;
   activeView: string;
+  onSearchClick?: () => void;
 }
 
-export default function TopBar({ currentBranch, activeView }: Props) {
+export default function TopBar({ currentBranch, activeView, onSearchClick }: Props) {
   return (
     <div className="flex items-center justify-between h-12 px-4 bg-card border-b border-border">
       {/* Left: project + branch */}
@@ -21,7 +22,7 @@ export default function TopBar({ currentBranch, activeView }: Props) {
       </div>
 
       {/* Center: search */}
-      <button className="flex items-center gap-2 px-3 py-1.5 bg-muted border border-border text-muted-foreground hover:text-foreground w-80">
+      <button onClick={onSearchClick} className="flex items-center gap-2 px-3 py-1.5 bg-muted border border-border text-muted-foreground hover:text-foreground w-80">
         <PxIcon icon="search" size={14} />
         <span className="text-xs flex-1 text-left">Search files, issues, commands...</span>
         <kbd className="text-[10px] bg-accent px-1.5 py-0.5 text-muted-foreground">⌘K</kbd>

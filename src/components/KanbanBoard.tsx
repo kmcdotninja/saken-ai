@@ -34,7 +34,7 @@ function KanbanCardItem({ card, onClick }: { card: CardType; onClick: () => void
   return (
     <div
       onClick={onClick}
-      className="bg-card border border-border p-3.5 hover:border-foreground/20 hover:bg-accent/30 transition-all cursor-pointer group"
+      className="bg-card border border-border p-3.5 hover:border-foreground/20 hover:bg-accent/30 transition-all duration-150 cursor-pointer group animate-slide-up"
     >
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-mono text-muted-foreground">{card.id}</span>
@@ -250,7 +250,9 @@ export default function KanbanBoard() {
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className={`flex-1 overflow-y-auto px-3 pb-3 space-y-2.5 transition-colors ${snapshot.isDraggingOver ? "bg-accent/20" : ""}`}
+                        className={`flex-1 overflow-y-auto px-3 pb-3 space-y-2.5 transition-all duration-200 ${
+                          snapshot.isDraggingOver ? "bg-accent/20 ring-1 ring-inset ring-foreground/10" : ""
+                        }`}
                       >
                         {col.cards.map((card, index) => (
                           <Draggable key={card.id} draggableId={card.id} index={index}>
@@ -259,7 +261,13 @@ export default function KanbanBoard() {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className={snapshot.isDragging ? "opacity-90" : ""}
+                                style={{
+                                  ...provided.draggableProps.style,
+                                  animationDelay: `${index * 40}ms`,
+                                }}
+                                className={`transition-shadow duration-150 ${
+                                  snapshot.isDragging ? "opacity-90 shadow-lg shadow-background/50" : ""
+                                }`}
                               >
                                 <KanbanCardItem card={card} onClick={() => setSelectedCard(card)} />
                               </div>
