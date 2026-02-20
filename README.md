@@ -1,73 +1,165 @@
-# Welcome to your Lovable project
+Autonomous AI Agents
 
-## Project info
+Saken AI runs on specialized AI agents that work together like a real product team.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Each agent has a clear role. Each agent works independently. And they coordinate automatically.
 
-## How can I edit this code?
+Meet the Agents
 
-There are several ways of editing your application.
+Vlad — Code Agent
+Writes, refactors, and improves code in real time.
 
-**Use Lovable**
+Ivar — Product Dev Agent
+Breaks down ideas into tasks, defines features, and structures execution.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Bjorn — Deployment Agent
+Reviews builds, manages releases, and handles deployment workflows.
 
-Changes made via Lovable will be committed automatically to this repo.
+Agnes — Design Agent
+Designs interfaces, improves layouts, and ensures visual consistency.
 
-**Use your preferred IDE**
+How It Works
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Instead of you manually switching between tools or roles:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+The Product Agent defines the plan
 
-Follow these steps:
+The Design Agent prepares the interface
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+The Code Agent builds the feature
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+The Deployment Agent reviews and ships it
 
-# Step 3: Install the necessary dependencies.
-npm i
+All inside one workspace.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+You give direction.
+The agents execute.
 
-**Edit a file directly in GitHub**
+What Makes This Different
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Most tools give you AI assistance.
 
-**Use GitHub Codespaces**
+Saken AI gives you an AI team.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Agents don’t just respond to prompts — they:
 
-## What technologies are used for this project?
+Work in parallel
 
-This project is built with:
+Handle tasks independently
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Update status in real time
 
-## How can I deploy this project?
+Move projects forward without constant input
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+You’re not micromanaging tools.
+You’re directing a system.
 
-## Can I connect a custom domain to my Lovable project?
+If you want, I can now:
 
-Yes, you can!
+Turn this into landing page copy
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Write a bold manifesto-style section
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Or position this as “The First Autonomous Product Workspace” and make it sound big.
+
+Make it a README
+
+Here’s a product-focused README centered fully on autonomous AI agents:
+
+Saken AI
+
+Saken AI is an autonomous product workspace powered by AI agents.
+
+It doesn’t just assist you.
+It works for you.
+
+🌐 Live App
+https://saken-ai.lovable.app/
+
+The Idea
+
+Building software usually means juggling planning tools, design software, code editors, version control, and deployment platforms.
+
+Saken AI brings everything into one system — powered by specialized AI agents that operate like a real product team.
+
+You give direction.
+The agents execute.
+
+Autonomous AI Agents
+
+Saken AI runs on role-based AI agents that work independently and collaboratively.
+
+Each agent owns a responsibility.
+Each agent updates status in real time.
+Each agent moves the project forward.
+
+Vlad — Code Agent
+
+Writes, refactors, and improves code.
+Handles implementation and technical updates.
+
+Ivar — Product Development Agent
+
+Breaks ideas into structured tasks.
+Defines features and organizes execution.
+
+Bjorn — Deployment Agent
+
+Reviews builds, manages releases, and handles deployment workflows.
+
+Agnes — Design Agent
+
+Designs interfaces, improves layouts, and maintains visual consistency.
+
+How It Works
+
+You describe what you want to build.
+
+The Product Agent structures the work.
+
+The Design Agent prepares the interface.
+
+The Code Agent builds the feature.
+
+The Deployment Agent reviews and ships it.
+
+All inside one workspace.
+
+No switching tools.
+No fragmented workflow.
+No constant micromanagement.
+
+What Makes Saken AI Different
+
+Most platforms offer AI suggestions.
+
+Saken AI provides an AI team.
+
+Agents work in parallel
+
+Tasks update automatically
+
+Status is visible in real time
+
+Progress continues without constant prompts
+
+You are not managing tools.
+You are directing a system.
+
+Tech Stack
+
+Vite
+
+TypeScript
+
+React
+
+shadcn/ui
+
+Tailwind CSS
+
+Vision
+
+Software creation should feel like a continuous flow — not a chain of disconnected tools.
+
+Saken AI is built to replace the tool stack with a coordinated, autonomous system.
