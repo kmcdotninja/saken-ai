@@ -10,8 +10,10 @@ const agentIcons: Record<string, string> = {
 
 const activityLog = [
   { agentId: "vlad", action: "Pushed 3 commits to", target: "feat/collab-editing", time: "30s ago" },
+  { agentId: "agnes", action: "Updated design tokens for", target: "dark mode system", time: "45s ago" },
   { agentId: "ivar", action: "Updated sprint board with", target: "velocity insights", time: "1m ago" },
   { agentId: "bjorn", action: "Health check passed for", target: "EU-West deploy", time: "2m ago" },
+  { agentId: "agnes", action: "Finalized onboarding mockups for", target: "NEXUS-202", time: "3m ago" },
   { agentId: "vlad", action: "Resolved merge conflict in", target: "collaboration.ts", time: "4m ago" },
   { agentId: "ivar", action: "Created sub-task for", target: "NEXUS-191", time: "5m ago" },
   { agentId: "bjorn", action: "Scaled up instances for", target: "US-East region", time: "8m ago" },
