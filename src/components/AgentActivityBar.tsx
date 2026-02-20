@@ -5,6 +5,7 @@ const agentIcons: Record<string, string> = {
   vlad: "code",
   ivar: "briefcase-minus",
   bjorn: "cloud-upload",
+  agnes: "mood-happy",
 };
 
 const activityLog = [
