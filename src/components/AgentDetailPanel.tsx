@@ -153,6 +153,7 @@ interface Props {
 }
 
 export default function AgentDetailPanel({ agent, onBack }: Props) {
+  const [hoveredCell, setHoveredCell] = useState<{ row: number; col: number } | null>(null);
   const seedCommits = agentCommitSeeds[agent.id] || [];
   const templates = liveCommitTemplates[agent.id] || liveCommitTemplates.vlad;
   const stats = agentStats[agent.id] || agentStats.vlad;
@@ -277,13 +278,36 @@ export default function AgentDetailPanel({ agent, onBack }: Props) {
               <div key={ri} className="flex items-center gap-0.5">
                 <span className="text-[9px] text-muted-foreground w-6 shrink-0">{dayLabels[ri]}</span>
                 <div className="flex gap-[2px] flex-1">
-                  {row.map((cell, ci) => (
-                    <div
-                      key={ci}
-                      className={`w-[12px] h-[12px] ${heatColors[cell]} transition-colors`}
-                      title={`${dayLabels[ri]} ${hourLabels[ci]}:00 — ${cell === 0 ? "Idle" : cell === 1 ? "Low" : cell === 2 ? "Medium" : "High"}`}
-                    />
-                  ))}
+                  {row.map((cell, ci) => {
+                    const isHovered = hoveredCell?.row === ri && hoveredCell?.col === ci;
+                    const activityLevel = cell === 0 ? "Idle" : cell === 1 ? "Low" : cell === 2 ? "Medium" : "High";
+                    const commits = cell === 0 ? 0 : cell === 1 ? Math.floor(Math.random() * 3) + 1 : cell === 2 ? Math.floor(Math.random() * 5) + 4 : Math.floor(Math.random() * 8) + 8;
+                    return (
+                      <div
+                        key={ci}
+                        className="relative"
+                        onMouseEnter={() => setHoveredCell({ row: ri, col: ci })}
+                        onMouseLeave={() => setHoveredCell(null)}
+                      >
+                        <div
+                          className={`w-[12px] h-[12px] ${heatColors[cell]} transition-all duration-150 cursor-pointer ${
+                            isHovered ? "scale-[1.8] z-20 ring-1 ring-foreground/30" : "hover:scale-125"
+                          }`}
+                        />
+                        {isHovered && (
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1.5 bg-foreground text-background text-[10px] whitespace-nowrap z-30 pointer-events-none animate-fade-in shadow-lg">
+                            <div className="font-semibold">{dayLabels[ri]} {hourLabels[ci]}:00</div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span>{activityLevel}</span>
+                              <span>·</span>
+                              <span>{commits} commits</span>
+                            </div>
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-foreground" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
