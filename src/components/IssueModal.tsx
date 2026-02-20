@@ -65,10 +65,10 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
             {/* Meta */}
             <div className="flex flex-wrap gap-4 mb-5 text-xs">
               <div className="relative">
-                <span className="text-muted-foreground block mb-1">Assignee</span>
+                <span className="text-muted-foreground block mb-1.5">Assignee</span>
                 <button
                   onClick={() => setShowReassign(!showReassign)}
-                  className="flex items-center gap-2 px-2 py-1.5 bg-muted border border-border hover:border-foreground/20"
+                  className="flex items-center gap-2 px-2.5 py-1.5 bg-muted border border-border hover:border-foreground/20 h-8"
                 >
                   {agent && (
                     <>
@@ -96,27 +96,31 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
               </div>
 
               <div>
-                <span className="text-muted-foreground block mb-1">Labels</span>
-                <div className="flex gap-1">
+                <span className="text-muted-foreground block mb-1.5">Labels</span>
+                <div className="flex gap-1 h-8 items-center">
                   {card.labels.map((l) => (
-                    <span key={l} className="px-1.5 py-0.5 bg-muted border border-border text-muted-foreground">{l}</span>
+                    <span key={l} className="px-2.5 py-1.5 bg-muted border border-border text-muted-foreground">{l}</span>
                   ))}
                 </div>
               </div>
 
               {card.points && (
                 <div>
-                  <span className="text-muted-foreground block mb-1">Points</span>
-                  <span className="px-2 py-1 bg-muted border border-border text-foreground">{card.points}</span>
+                  <span className="text-muted-foreground block mb-1.5">Points</span>
+                  <div className="h-8 flex items-center">
+                    <span className="px-2.5 py-1.5 bg-muted border border-border text-foreground">{card.points}</span>
+                  </div>
                 </div>
               )}
 
               {card.subtasks && (
                 <div>
-                  <span className="text-muted-foreground block mb-1">Subtasks</span>
-                  <span className="px-2 py-1 bg-muted border border-border text-foreground">
-                    {card.subtasks.done}/{card.subtasks.total}
-                  </span>
+                  <span className="text-muted-foreground block mb-1.5">Subtasks</span>
+                  <div className="h-8 flex items-center">
+                    <span className="px-2.5 py-1.5 bg-muted border border-border text-foreground">
+                      {card.subtasks.done}/{card.subtasks.total}
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
