@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import PxIcon from "./PxIcon";
 import type { Agent } from "@/data/kanban-data";
 
@@ -24,7 +24,7 @@ interface AgentStats {
   currentStreak: number;
 }
 
-const agentCommits: Record<string, AgentCommit[]> = {
+const agentCommitSeeds: Record<string, AgentCommit[]> = {
   vlad: [
     { hash: "a3f1c9e", message: "feat: implement WebSocket collaboration layer", time: "12m ago", filesChanged: 8, additions: 342, deletions: 47 },
     { hash: "b7d2e4a", message: "refactor: extract auth middleware to shared module", time: "1h ago", filesChanged: 5, additions: 128, deletions: 89 },
@@ -56,6 +56,43 @@ const agentCommits: Record<string, AgentCommit[]> = {
     { hash: "agk3l4m", message: "fix: resolve spacing inconsistencies in onboarding flow", time: "10h ago", filesChanged: 6, additions: 78, deletions: 56 },
   ],
 };
+
+// Extra commit templates for infinite real-time feed per agent
+const liveCommitTemplates: Record<string, { message: string; filesChanged: number; additions: number; deletions: number }[]> = {
+  vlad: [
+    { message: "feat: add optimistic updates for collaboration cursors", filesChanged: 3, additions: 145, deletions: 23 },
+    { message: "fix: handle disconnection gracefully in WS client", filesChanged: 2, additions: 67, deletions: 31 },
+    { message: "refactor: migrate auth tokens to HTTP-only cookies", filesChanged: 4, additions: 198, deletions: 112 },
+    { message: "perf: lazy-load editor plugins on demand", filesChanged: 5, additions: 89, deletions: 45 },
+    { message: "test: add e2e tests for multi-user editing", filesChanged: 3, additions: 312, deletions: 8 },
+    { message: "feat: implement undo/redo stack for collab ops", filesChanged: 6, additions: 256, deletions: 78 },
+  ],
+  ivar: [
+    { message: "feat: add capacity planning widget to dashboard", filesChanged: 2, additions: 134, deletions: 12 },
+    { message: "docs: document sprint retrospective workflow", filesChanged: 1, additions: 89, deletions: 5 },
+    { message: "fix: recalculate velocity after scope change", filesChanged: 3, additions: 56, deletions: 34 },
+    { message: "feat: implement dependency graph for epics", filesChanged: 4, additions: 201, deletions: 45 },
+    { message: "refactor: simplify backlog sorting algorithm", filesChanged: 2, additions: 34, deletions: 67 },
+  ],
+  bjorn: [
+    { message: "ops: add Prometheus metrics for pod autoscaler", filesChanged: 3, additions: 156, deletions: 34 },
+    { message: "feat: implement canary deployment strategy", filesChanged: 5, additions: 289, deletions: 67 },
+    { message: "fix: resolve DNS propagation delay in failover", filesChanged: 2, additions: 45, deletions: 12 },
+    { message: "ops: optimize container image size by 40%", filesChanged: 3, additions: 23, deletions: 189 },
+    { message: "feat: add automated backup verification pipeline", filesChanged: 4, additions: 178, deletions: 34 },
+  ],
+  agnes: [
+    { message: "design: create responsive grid breakpoint tokens", filesChanged: 8, additions: 234, deletions: 89 },
+    { message: "feat: add micro-interaction library for buttons", filesChanged: 5, additions: 312, deletions: 45 },
+    { message: "fix: correct color contrast ratios for WCAG AA", filesChanged: 12, additions: 156, deletions: 134 },
+    { message: "design: finalize illustration style guide", filesChanged: 6, additions: 89, deletions: 23 },
+    { message: "refactor: migrate to CSS custom properties for theming", filesChanged: 15, additions: 445, deletions: 312 },
+  ],
+};
+
+function randomHash(): string {
+  return Math.random().toString(36).substring(2, 9);
+}
 
 const agentStats: Record<string, AgentStats> = {
   vlad: { totalCommits: 1247, linesWritten: "89.2k", prsOpened: 312, prsMerged: 298, avgResponseTime: "1.2s", uptime: "99.8%", tasksCompleted: 456, currentStreak: 14 },
@@ -116,15 +153,38 @@ interface Props {
 }
 
 export default function AgentDetailPanel({ agent, onBack }: Props) {
-  const commits = agentCommits[agent.id] || [];
+  const seedCommits = agentCommitSeeds[agent.id] || [];
+  const templates = liveCommitTemplates[agent.id] || liveCommitTemplates.vlad;
   const stats = agentStats[agent.id] || agentStats.vlad;
   const specialties = agentSpecialties[agent.id] || [];
   const heatmap = useMemo(() => generateHeatmap(agent.id), [agent.id]);
-
-  const totalActive = useMemo(() => {
-    return heatmap.flat().filter((v) => v > 0).length;
-  }, [heatmap]);
+  const totalActive = useMemo(() => heatmap.flat().filter((v) => v > 0).length, [heatmap]);
   const totalIdle = heatmap.flat().length - totalActive;
+
+  const [commits, setCommits] = useState<AgentCommit[]>(seedCommits);
+  const templateIdx = useRef(0);
+
+  useEffect(() => {
+    setCommits(agentCommitSeeds[agent.id] || []);
+    templateIdx.current = 0;
+  }, [agent.id]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const t = templates[templateIdx.current % templates.length];
+      templateIdx.current++;
+      const newCommit: AgentCommit = {
+        hash: randomHash(),
+        message: t.message,
+        time: "just now",
+        filesChanged: t.filesChanged,
+        additions: t.additions,
+        deletions: t.deletions,
+      };
+      setCommits((prev) => [newCommit, ...prev.slice(0, 14)]);
+    }, 5000 + Math.random() * 5000);
+    return () => clearInterval(interval);
+  }, [templates]);
 
   return (
     <div className="w-72 bg-card border-l border-border flex flex-col h-full">
@@ -254,7 +314,7 @@ export default function AgentDetailPanel({ agent, onBack }: Props) {
           </div>
           <div className="space-y-0.5">
             {commits.map((c) => (
-              <div key={c.hash} className="px-2 py-2 hover:bg-accent/50 transition-colors">
+              <div key={c.hash} className="px-2 py-2 hover:bg-accent/50 transition-colors animate-slide-in-activity">
                 <div className="flex items-start gap-2">
                   <PxIcon icon="git-commit" size={12} className="text-muted-foreground mt-0.5 shrink-0" />
                   <div className="flex-1 min-w-0">
