@@ -248,7 +248,7 @@ export default function AgentDetailPanel({ agent, onBack }: Props) {
               { label: "Avg Response", value: stats.avgResponseTime },
               { label: "Uptime", value: stats.uptime },
               { label: "Streak", value: `${stats.currentStreak}d` },
-              { label: "Active", value: `${totalActive} cells` },
+              { label: "AI Credits", value: `${(totalActive * 137).toLocaleString()}` },
             ].map((s) => (
               <div key={s.label} className="bg-muted px-2.5 py-2">
                 <div className="text-[10px] text-muted-foreground">{s.label}</div>
