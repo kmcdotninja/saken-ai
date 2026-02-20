@@ -4,6 +4,7 @@ import FileExplorer from "@/components/FileExplorer";
 import CodeEditor from "@/components/CodeEditor";
 import AgentPanel from "@/components/AgentPanel";
 import AgentActivityBar from "@/components/AgentActivityBar";
+import AgentCollapsedStrip from "@/components/AgentCollapsedStrip";
 import TerminalPanel from "@/components/TerminalPanel";
 import GitPanel from "@/components/GitPanel";
 import DeploymentsPanel from "@/components/DeploymentsPanel";
@@ -17,6 +18,7 @@ const Index = () => {
   const [tabs, setTabs] = useState(["Dashboard.tsx", "api.ts", "App.tsx"]);
   const [activeTab, setActiveTab] = useState("Dashboard.tsx");
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [agentPanelOpen, setAgentPanelOpen] = useState(true);
 
   const toggleCmd = useCallback(() => setCmdOpen((v) => !v), []);
 
@@ -30,6 +32,17 @@ const Index = () => {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [toggleCmd]);
+
+  // Auto-collapse on smaller screens
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1279px)");
+    const handler = (e: MediaQueryListEvent | MediaQueryList) => {
+      if (e.matches) setAgentPanelOpen(false);
+    };
+    handler(mq);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   const handleSelectFile = (name: string) => {
     setActiveFile(name);
@@ -74,9 +87,17 @@ const Index = () => {
   };
 
   const renderRightPanel = () => {
-    if (activeView === "board") return <AgentActivityBar />;
-    if (activeView === "editor") return <AgentPanel />;
-    return null;
+    const showPanel = activeView === "board" || activeView === "editor";
+    if (!showPanel) return null;
+
+    if (!agentPanelOpen) {
+      return <AgentCollapsedStrip onExpand={() => setAgentPanelOpen(true)} />;
+    }
+
+    if (activeView === "board") {
+      return <AgentActivityBar onCollapse={() => setAgentPanelOpen(false)} />;
+    }
+    return <AgentPanel onCollapse={() => setAgentPanelOpen(false)} />;
   };
 
   return (
