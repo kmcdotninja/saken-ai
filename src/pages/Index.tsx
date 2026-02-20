@@ -25,6 +25,7 @@ const Index = () => {
   const [activeFile, setActiveFile] = useState(viewData.defaultTabs[0]);
   const [tabs, setTabs] = useState(viewData.defaultTabs);
   const [activeTab, setActiveTab] = useState(viewData.defaultTabs[0]);
+  const [currentBranch, setCurrentBranch] = useState(viewData.currentBranch);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [agentPanelOpen, setAgentPanelOpen] = useState(true);
@@ -44,6 +45,7 @@ const Index = () => {
     setTabs(data.defaultTabs);
     setActiveTab(data.defaultTabs[0]);
     setActiveFile(data.defaultTabs[0]);
+    setCurrentBranch(data.currentBranch);
   }, [currentProject]);
 
   const handleOpenProjectsChange = (projects: string[]) => {
@@ -122,7 +124,7 @@ const Index = () => {
     if (activeView === "board") {
       return <AgentActivityBar onCollapse={() => setAgentPanelOpen(false)} />;
     }
-    return <AgentPanel onCollapse={() => setAgentPanelOpen(false)} />;
+    return <AgentPanel onCollapse={() => setAgentPanelOpen(false)} activeFile={activeTab} />;
   };
 
   return (
@@ -130,11 +132,13 @@ const Index = () => {
       <Sidebar active={activeView} onNavigate={setActiveView} openProjects={openProjects} onOpenProjectsChange={handleOpenProjectsChange} />
       <div className="flex-1 flex flex-col min-w-0">
         <TopBar
-          currentBranch={viewData.currentBranch}
+          currentBranch={currentBranch}
           activeView={activeView}
           onSearchClick={() => setCmdOpen(true)}
           onNotificationClick={() => setNotifOpen(true)}
           bellSeverity={(getUnreadSeverity() as BellSeverity) || "success"}
+          projectId={currentProject}
+          onBranchChange={setCurrentBranch}
         />
         <div className="flex flex-1 min-h-0">
           {renderMainContent()}

@@ -1,13 +1,8 @@
+import { useState, useRef, useEffect } from "react";
 import PxIcon from "./PxIcon";
-import logoSaken from "@/assets/logo-saken.png";
+import { projectViewData } from "@/data/project-data";
 
 export type BellSeverity = "success" | "error" | "warning";
-
-const severityBellColor: Record<BellSeverity, string> = {
-  success: "bg-success",
-  warning: "bg-warning",
-  error: "bg-destructive",
-};
 
 interface Props {
   currentBranch: string;
@@ -15,20 +10,75 @@ interface Props {
   onSearchClick?: () => void;
   onNotificationClick?: () => void;
   bellSeverity?: BellSeverity;
+  projectId?: string;
+  onBranchChange?: (branch: string) => void;
 }
 
-export default function TopBar({ currentBranch, activeView, onSearchClick, onNotificationClick, bellSeverity = "success" }: Props) {
+export default function TopBar({ currentBranch, activeView, onSearchClick, onNotificationClick, bellSeverity = "success", projectId, onBranchChange }: Props) {
+  const [branchDropdownOpen, setBranchDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const viewData = projectId ? (projectViewData[projectId] || projectViewData["nexus-platform"]) : null;
+  const branches = viewData?.git.branches.map((b) => b.name) || ["main", "develop", "feat/new-feature"];
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setBranchDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleBranchSelect = (branch: string) => {
+    setBranchDropdownOpen(false);
+    onBranchChange?.(branch);
+  };
+
   return (
     <div className="flex items-center justify-between h-12 px-4 bg-card border-b border-border">
       {/* Left: project + branch */}
       <div className="flex items-center gap-3">
-        <span className="text-sm font-semibold text-foreground">nexus-platform</span>
+        <span className="text-sm font-semibold text-foreground">{projectId || "nexus-platform"}</span>
         <span className="text-border">/</span>
-        <button className="flex items-center gap-1.5 px-2 py-1 text-xs bg-muted border border-border text-muted-foreground hover:text-foreground">
-          <PxIcon icon="git-branch" size={12} />
-          <span className="font-mono">{currentBranch}</span>
-          <PxIcon icon="chevron-down" size={10} />
-        </button>
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setBranchDropdownOpen(!branchDropdownOpen)}
+            className="flex items-center gap-1.5 px-2 py-1 text-xs bg-muted border border-border text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <PxIcon icon="git-branch" size={12} />
+            <span className="font-mono">{currentBranch}</span>
+            <PxIcon icon="chevron-down" size={10} className={`transition-transform ${branchDropdownOpen ? "rotate-180" : ""}`} />
+          </button>
+
+          {branchDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 w-56 bg-popover border border-border shadow-lg z-50 animate-fade-in">
+              <div className="px-3 py-2 border-b border-border">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Switch branch</span>
+              </div>
+              <div className="max-h-48 overflow-y-auto py-1">
+                {branches.map((branch) => (
+                  <button
+                    key={branch}
+                    onClick={() => handleBranchSelect(branch)}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left transition-colors ${
+                      branch === currentBranch
+                        ? "bg-accent text-foreground"
+                        : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                    }`}
+                  >
+                    <PxIcon icon="git-branch" size={12} />
+                    <span className="font-mono text-xs">{branch}</span>
+                    {branch === currentBranch && (
+                      <PxIcon icon="check" size={12} className="ml-auto text-success" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Center: search */}
@@ -50,7 +100,7 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
         >
           <PxIcon icon="notification" size={16} />
           <span
-            className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-emerald-500"
+            className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-success"
             style={{ zIndex: 10 }}
           />
         </button>
