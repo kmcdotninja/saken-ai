@@ -199,7 +199,8 @@ export default function AgentDetailPanel({ agent, onBack }: Props) {
         <span className="text-sm font-semibold text-foreground">Agent Details</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      {/* Non-scrollable top sections */}
+      <div className="shrink-0 overflow-y-auto max-h-[55%]">
         {/* Agent profile card */}
         <div className="px-4 py-4 border-b border-border">
           <div className="flex items-center gap-3">
@@ -306,37 +307,37 @@ export default function AgentDetailPanel({ agent, onBack }: Props) {
             <span className="text-[9px] text-muted-foreground">More</span>
           </div>
         </div>
+      </div>
 
-        {/* Commits */}
-        <div className="flex-1 flex flex-col min-h-0">
-          <div className="px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium sticky top-0 bg-card z-10 border-b border-border">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              Recent Commits <span className="text-foreground ml-1">{commits.length}</span>
-            </div>
+      {/* Commits — independently scrollable */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="px-4 py-2 text-xs text-muted-foreground uppercase tracking-wider font-medium shrink-0 bg-card z-10 border-b border-border">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            Recent Commits <span className="text-foreground ml-1">{commits.length}</span>
           </div>
-          <div className="px-4 py-1 space-y-0.5">
-            {commits.map((c) => (
-              <div key={c.hash} className="px-2 py-2 hover:bg-accent/50 transition-colors animate-slide-in-activity">
-                <div className="flex items-start gap-2">
-                  <PxIcon icon="git-commit" size={12} className="text-muted-foreground mt-0.5 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-foreground truncate leading-relaxed">{c.message}</p>
-                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
-                      <span className="font-mono">{c.hash}</span>
-                      <span>·</span>
-                      <span>{c.time}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[10px] mt-1">
-                      <span className="text-muted-foreground">{c.filesChanged} files</span>
-                      <span className="text-emerald-400">+{c.additions}</span>
-                      <span className="text-destructive">-{c.deletions}</span>
-                    </div>
+        </div>
+        <div className="flex-1 overflow-y-auto px-4 py-1 space-y-0.5">
+          {commits.map((c) => (
+            <div key={c.hash} className="px-2 py-2 hover:bg-accent/50 transition-colors animate-slide-in-activity">
+              <div className="flex items-start gap-2">
+                <PxIcon icon="git-commit" size={12} className="text-muted-foreground mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-foreground truncate leading-relaxed">{c.message}</p>
+                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
+                    <span className="font-mono">{c.hash}</span>
+                    <span>·</span>
+                    <span>{c.time}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] mt-1">
+                    <span className="text-muted-foreground">{c.filesChanged} files</span>
+                    <span className="text-emerald-400">+{c.additions}</span>
+                    <span className="text-destructive">-{c.deletions}</span>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
