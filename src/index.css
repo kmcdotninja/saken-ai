@@ -41,6 +41,65 @@
 
 @layer base {
   :root {
+    --background: 0 0% 98%;
+    --foreground: 220 20% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 14%;
+
+    --primary: 24 95% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 92%;
+    --secondary-foreground: 220 15% 35%;
+
+    --muted: 220 14% 94%;
+    --muted-foreground: 215 12% 45%;
+
+    --accent: 220 14% 90%;
+    --accent-foreground: 220 20% 14%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 87%;
+    --input: 220 13% 87%;
+    --ring: 24 95% 53%;
+
+    --radius: 0px;
+
+    --sidebar-background: 0 0% 97%;
+    --sidebar-foreground: 215 12% 40%;
+    --sidebar-primary: 24 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 92%;
+    --sidebar-accent-foreground: 220 20% 14%;
+    --sidebar-border: 220 13% 87%;
+    --sidebar-ring: 24 95% 53%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+
+    --surface-0: 0 0% 98%;
+    --surface-1: 0 0% 96%;
+    --surface-2: 220 14% 94%;
+    --surface-3: 220 13% 90%;
+
+    --code-keyword: 24 80% 45%;
+    --code-string: 142 71% 35%;
+    --code-type: 38 92% 45%;
+    --code-comment: 215 12% 55%;
+    --code-function: 220 20% 35%;
+    --code-variable: 220 20% 25%;
+    --code-number: 24 60% 40%;
+  }
+
+  .dark {
     --background: 220 25% 8%;
     --foreground: 210 15% 88%;
 
@@ -140,11 +199,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(220 18% 20%);
+  background: hsl(var(--border));
   border-radius: 0px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(220 18% 28%);
+  background: hsl(var(--muted-foreground));
 }
 
 /* Line number gutter */

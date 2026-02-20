@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import PxIcon from "./PxIcon";
 import { projectViewData } from "@/data/project-data";
+import { useTheme } from "@/hooks/use-theme";
 
 export type BellSeverity = "success" | "error" | "warning";
 
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export default function TopBar({ currentBranch, activeView, onSearchClick, onNotificationClick, bellSeverity = "success", projectId, onBranchChange }: Props) {
+  const { theme, toggleTheme } = useTheme();
   const [branchDropdownOpen, setBranchDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -90,6 +92,13 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
 
       {/* Right: actions */}
       <div className="flex items-center gap-2">
+        <button
+          onClick={toggleTheme}
+          className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          <PxIcon icon={theme === "dark" ? "sun" : "moon"} size={16} />
+        </button>
         <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-success/10 text-success hover:bg-success/20">
           <PxIcon icon="cloud-upload" size={12} /> Deploy
         </button>
