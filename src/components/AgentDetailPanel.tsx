@@ -241,6 +241,7 @@ export default function AgentDetailPanel({ agent, onBack }: Props) {
           <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Stats</div>
           <div className="grid grid-cols-2 gap-2">
             {[
+              { label: "AI Credits Burnt", value: `${(totalActive * 137).toLocaleString()}` },
               { label: "Commits", value: stats.totalCommits.toLocaleString() },
               { label: "Lines Written", value: stats.linesWritten },
               { label: "PRs Merged", value: `${stats.prsMerged}/${stats.prsOpened}` },
@@ -248,7 +249,6 @@ export default function AgentDetailPanel({ agent, onBack }: Props) {
               { label: "Avg Response", value: stats.avgResponseTime },
               { label: "Uptime", value: stats.uptime },
               { label: "Streak", value: `${stats.currentStreak}d` },
-              { label: "AI Credits", value: `${(totalActive * 137).toLocaleString()}` },
             ].map((s) => (
               <div key={s.label} className="bg-muted px-2.5 py-2">
                 <div className="text-[10px] text-muted-foreground">{s.label}</div>
