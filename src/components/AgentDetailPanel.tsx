@@ -381,12 +381,12 @@ export default function AgentDetailPanel({ agent, onBack }: Props) {
               design: "text-purple-400",
             };
             return (
-              <div key={a.id} className="px-2 py-2 hover:bg-accent/50 transition-colors animate-slide-in-activity">
+              <div key={a.id} className="px-2 py-1.5 hover:bg-accent/50 transition-colors animate-slide-in-activity">
                 <div className="flex items-start gap-2">
                   <PxIcon icon={iconMap[a.type]} size={12} className={`${colorMap[a.type]} mt-0.5 shrink-0`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-foreground truncate leading-relaxed">{a.message}</p>
-                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
+                    <p className="text-xs text-foreground leading-relaxed break-words whitespace-normal">{a.message}</p>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground mt-0.5">
                       {a.hash && <span className="font-mono">{a.hash}</span>}
                       {a.hash && <span>·</span>}
                       {a.from && a.to && (
