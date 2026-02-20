@@ -12,6 +12,7 @@ import DeploymentsPanel from "@/components/DeploymentsPanel";
 import KanbanBoard from "@/components/KanbanBoard";
 import TopBar from "@/components/TopBar";
 import CommandPalette from "@/components/CommandPalette";
+import ProfileSettingsPanel from "@/components/ProfileSettingsPanel";
 import NotificationPanel, { getUnreadSeverity } from "@/components/NotificationPanel";
 import type { BellSeverity } from "@/components/TopBar";
 import { projectViewData } from "@/data/project-data";
@@ -28,6 +29,7 @@ const Index = () => {
   const [currentBranch, setCurrentBranch] = useState(viewData.currentBranch);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [agentPanelOpen, setAgentPanelOpen] = useState(true);
   const [openProjects, setOpenProjects] = useState<string[]>(() => {
     const stored = sessionStorage.getItem("openProjects");
@@ -129,7 +131,7 @@ const Index = () => {
 
   return (
     <div className="flex h-screen bg-surface-0 overflow-hidden">
-      <Sidebar active={activeView} onNavigate={setActiveView} openProjects={openProjects} onOpenProjectsChange={handleOpenProjectsChange} />
+      <Sidebar active={activeView} onNavigate={setActiveView} openProjects={openProjects} onOpenProjectsChange={handleOpenProjectsChange} onProfileClick={() => setProfileOpen(true)} />
       <div className="flex-1 flex flex-col min-w-0">
         <TopBar
           currentBranch={currentBranch}
@@ -147,6 +149,7 @@ const Index = () => {
       </div>
       <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
       <NotificationPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
+      {profileOpen && <ProfileSettingsPanel onClose={() => setProfileOpen(false)} />}
     </div>
   );
 };

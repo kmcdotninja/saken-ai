@@ -29,9 +29,10 @@ interface Props {
   onNavigate: (id: string) => void;
   openProjects?: string[];
   onOpenProjectsChange?: (projects: string[]) => void;
+  onProfileClick?: () => void;
 }
 
-export default function Sidebar({ active, onNavigate, openProjects = [], onOpenProjectsChange }: Props) {
+export default function Sidebar({ active, onNavigate, openProjects = [], onOpenProjectsChange, onProfileClick }: Props) {
   const navigate = useNavigate();
   const { id: currentProjectId } = useParams();
 
@@ -136,9 +137,12 @@ export default function Sidebar({ active, onNavigate, openProjects = [], onOpenP
         >
           <PxIcon icon="sliders" size={20} />
         </button>
-        <div className="w-8 h-8 bg-accent flex items-center justify-center mt-1">
+        <button
+          onClick={onProfileClick}
+          className="w-8 h-8 bg-accent flex items-center justify-center mt-1 hover:bg-foreground/20 transition-colors cursor-pointer"
+        >
           <span className="text-foreground text-xs font-medium">JD</span>
-        </div>
+        </button>
       </div>
     </div>
   );
