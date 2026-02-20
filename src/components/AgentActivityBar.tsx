@@ -1,10 +1,10 @@
 import { agents, type Agent } from "@/data/kanban-data";
-import { Bot, Sparkles, Code2, Package, Rocket } from "lucide-react";
+import PxIcon from "./PxIcon";
 
-const agentIcons: Record<string, typeof Code2> = {
-  vlad: Code2,
-  ivar: Package,
-  bjorn: Rocket,
+const agentIcons: Record<string, string> = {
+  vlad: "code",
+  ivar: "briefcase-minus",
+  bjorn: "cloud-upload",
 };
 
 const activityLog = [
@@ -21,7 +21,7 @@ export default function AgentActivityBar() {
     <div className="w-72 bg-card border-l border-border flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 h-12 border-b border-border shrink-0">
-        <Sparkles size={16} className="text-foreground" />
+        <PxIcon icon="human-handsup" size={16} className="text-foreground" />
         <span className="text-sm font-semibold text-foreground">AI Agents</span>
         <span className="ml-auto text-xs text-success flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-dot" />
@@ -32,7 +32,7 @@ export default function AgentActivityBar() {
       {/* Agent cards */}
       <div className="px-3 py-3 space-y-2 border-b border-border shrink-0">
         {agents.map((agent) => {
-          const Icon = agentIcons[agent.id];
+          const iconName = agentIcons[agent.id];
           return (
             <div
               key={agent.id}
@@ -49,7 +49,7 @@ export default function AgentActivityBar() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-sm font-medium text-foreground">{agent.name}</span>
-                  <Icon size={12} className={agent.color} />
+                  <PxIcon icon={iconName} size={12} className={agent.color} />
                 </div>
                 <span className="text-xs text-muted-foreground truncate block">{agent.role}</span>
               </div>

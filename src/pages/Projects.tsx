@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Plus, LayoutGrid, List, MoreHorizontal, Search,
-  GitBranch, Clock, Users, Rocket, Bot, Sparkles
-} from "lucide-react";
 import logoSaken from "@/assets/logo-saken.png";
+import PxIcon from "@/components/PxIcon";
 
 interface Project {
   id: string;
@@ -95,7 +92,7 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
           </div>
         </div>
         <button className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-foreground transition-opacity">
-          <MoreHorizontal size={14} />
+          <PxIcon icon="more-horizontal" size={14} />
         </button>
       </div>
 
@@ -106,22 +103,22 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1">
-            <GitBranch size={11} />
+            <PxIcon icon="git-branch" size={11} />
             {project.branches}
           </span>
           <span className="flex items-center gap-1">
-            <Rocket size={11} />
+            <PxIcon icon="cloud-upload" size={11} />
             {project.deploys}
           </span>
           {project.agents > 0 && (
             <span className="flex items-center gap-1 text-success">
-              <Bot size={11} />
+              <PxIcon icon="cpu" size={11} />
               {project.agents} agents
             </span>
           )}
         </div>
         <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-          <Clock size={10} />
+          <PxIcon icon="clock" size={10} />
           {project.lastUpdated}
         </span>
       </div>
@@ -156,25 +153,25 @@ function ProjectRow({ project, onClick }: { project: Project; onClick: () => voi
       <div className="flex items-center gap-4 text-[11px] text-muted-foreground shrink-0">
         {project.agents > 0 && (
           <span className="flex items-center gap-1 text-success">
-            <Bot size={11} />
+            <PxIcon icon="cpu" size={11} />
             {project.agents}
           </span>
         )}
         <span className="flex items-center gap-1">
-          <GitBranch size={11} />
+          <PxIcon icon="git-branch" size={11} />
           {project.branches}
         </span>
         <span className="flex items-center gap-1">
-          <Rocket size={11} />
+          <PxIcon icon="cloud-upload" size={11} />
           {project.deploys}
         </span>
         <span className="flex items-center gap-1 w-24 text-right justify-end">
-          <Clock size={10} />
+          <PxIcon icon="clock" size={10} />
           {project.lastUpdated}
         </span>
       </div>
       <button className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-foreground transition-opacity">
-        <MoreHorizontal size={14} />
+        <PxIcon icon="more-horizontal" size={14} />
       </button>
     </div>
   );
@@ -209,27 +206,27 @@ export default function Projects() {
         {/* Top bar */}
         <div className="flex items-center justify-between h-12 px-6 bg-card border-b border-border">
           <div className="flex items-center gap-2">
-            <Sparkles size={16} className="text-foreground" />
+            <PxIcon icon="zap" size={16} className="text-foreground" />
             <span className="text-sm font-semibold text-foreground">Projects</span>
             <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5">{projects.length}</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-muted border border-border">
+            <div className="flex items-center gap-0 bg-muted border border-border">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-1.5 ${viewMode === "grid" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
               >
-                <LayoutGrid size={14} />
+                <PxIcon icon="layout-columns" size={14} />
               </button>
               <button
                 onClick={() => setViewMode("list")}
                 className={`p-1.5 ${viewMode === "list" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
               >
-                <List size={14} />
+                <PxIcon icon="list" size={14} />
               </button>
             </div>
             <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-foreground text-background hover:bg-foreground/90">
-              <Plus size={12} /> New Project
+              <PxIcon icon="plus" size={12} /> New Project
             </button>
           </div>
         </div>
@@ -237,7 +234,7 @@ export default function Projects() {
         {/* Search */}
         <div className="px-6 py-3 border-b border-border">
           <div className="flex items-center gap-2 px-3 py-2 bg-muted border border-border text-muted-foreground w-80">
-            <Search size={14} />
+            <PxIcon icon="search" size={14} />
             <input
               type="text"
               placeholder="Search projects..."
