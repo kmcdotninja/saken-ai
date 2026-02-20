@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Sidebar from "@/components/Sidebar";
 import FileExplorer from "@/components/FileExplorer";
 import CodeEditor from "@/components/CodeEditor";
@@ -9,12 +9,27 @@ import GitPanel from "@/components/GitPanel";
 import DeploymentsPanel from "@/components/DeploymentsPanel";
 import KanbanBoard from "@/components/KanbanBoard";
 import TopBar from "@/components/TopBar";
+import CommandPalette from "@/components/CommandPalette";
 
 const Index = () => {
   const [activeView, setActiveView] = useState("board");
   const [activeFile, setActiveFile] = useState("Dashboard.tsx");
   const [tabs, setTabs] = useState(["Dashboard.tsx", "api.ts", "App.tsx"]);
   const [activeTab, setActiveTab] = useState("Dashboard.tsx");
+  const [cmdOpen, setCmdOpen] = useState(false);
+
+  const toggleCmd = useCallback(() => setCmdOpen((v) => !v), []);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        toggleCmd();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [toggleCmd]);
 
   const handleSelectFile = (name: string) => {
     setActiveFile(name);
@@ -68,12 +83,13 @@ const Index = () => {
     <div className="flex h-screen bg-surface-0 overflow-hidden">
       <Sidebar active={activeView} onNavigate={setActiveView} />
       <div className="flex-1 flex flex-col min-w-0">
-        <TopBar currentBranch="feat/dashboard-redesign" activeView={activeView} />
+        <TopBar currentBranch="feat/dashboard-redesign" activeView={activeView} onSearchClick={() => setCmdOpen(true)} />
         <div className="flex flex-1 min-h-0">
           {renderMainContent()}
           {renderRightPanel()}
         </div>
       </div>
+      <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
     </div>
   );
 };
