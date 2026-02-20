@@ -47,7 +47,7 @@ export default function AgentActivityBar({ onCollapse }: { onCollapse?: () => vo
                   alt={agent.name}
                   className="w-9 h-9 rounded-full object-cover ring-2 ring-border"
                 />
-                <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-muted ${
+                <span className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-muted z-10 ${
                   agent.status === "working" ? "bg-success animate-notif-blink" :
                   agent.status === "reviewing" ? "bg-warning animate-notif-blink" :
                   agent.statusColor
