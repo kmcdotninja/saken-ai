@@ -2,6 +2,62 @@ import { useState, useRef, useEffect } from "react";
 import PxIcon from "./PxIcon";
 import { projectViewData } from "@/data/project-data";
 import { useTheme } from "@/hooks/use-theme";
+import { toast } from "sonner";
+
+type DeployState = "idle" | "deploying" | "deployed";
+
+function DeployButton() {
+  const [state, setState] = useState<DeployState>("idle");
+
+  const handleClick = () => {
+    if (state === "idle") {
+      setState("deploying");
+      setTimeout(() => {
+        setState("deployed");
+        toast.success("Deployed successfully", {
+          description: "All services are live across regions",
+          icon: "🚀",
+        });
+      }, 3000);
+    } else if (state === "deployed") {
+      setState("idle");
+      toast("Undeployed", {
+        description: "Services taken offline",
+        icon: "⏹️",
+      });
+    }
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={state === "deploying"}
+      className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs transition-all duration-300 ${
+        state === "idle"
+          ? "bg-success/10 text-success hover:bg-success/20"
+          : state === "deploying"
+          ? "bg-warning/10 text-warning cursor-wait"
+          : "bg-success text-background hover:bg-success/90"
+      }`}
+    >
+      {state === "idle" && (
+        <>
+          <PxIcon icon="cloud-upload" size={12} /> Deploy
+        </>
+      )}
+      {state === "deploying" && (
+        <>
+          <PxIcon icon="loader" size={12} className="animate-spin" /> Deploying...
+        </>
+      )}
+      {state === "deployed" && (
+        <>
+          <PxIcon icon="check" size={12} /> Deployed
+        </>
+      )}
+    </button>
+  );
+}
 
 export type BellSeverity = "success" | "error" | "warning";
 
@@ -99,9 +155,7 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
         >
           <PxIcon icon={theme === "dark" ? "sun" : "moon"} size={16} />
         </button>
-        <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-success/10 text-success hover:bg-success/20">
-          <PxIcon icon="cloud-upload" size={12} /> Deploy
-        </button>
+        <DeployButton />
         <button
           onClick={onNotificationClick}
           className="relative p-2 text-muted-foreground hover:text-foreground hover:bg-accent"
