@@ -52,7 +52,7 @@ function DeployButton() {
       )}
       {state === "deployed" && (
         <>
-          <PxIcon icon="check" size={12} /> Deployed
+          <PxIcon icon="close" size={12} /> Undeploy
         </>
       )}
     </button>
