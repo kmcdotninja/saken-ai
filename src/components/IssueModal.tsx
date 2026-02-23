@@ -15,7 +15,9 @@ const priorityConfig: Record<string, { icon: string; cls: string; label: string 
   low: { icon: "circle", cls: "text-muted-foreground", label: "Low" },
 };
 
-const SUPERVISOR = { id: "supervisor", name: "Supervisor", color: "text-primary" };
+import avatarYahaya from "@/assets/avatar-yahaya.png";
+
+const SUPERVISOR = { id: "supervisor", name: "Yahaya M.", color: "text-primary", avatar: avatarYahaya };
 
 const initialComments = [
   { author: "vlad", text: "Started working on the core implementation. The OT algorithm needs careful handling of concurrent edits.", time: "2h ago" },
@@ -181,9 +183,7 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
                     return (
                       <div key={i} className={`flex gap-3 ${isSupervisor ? "bg-primary/5 -mx-2 px-2 py-2 border-l-2 border-primary/40" : ""}`}>
                         {isSupervisor ? (
-                          <div className="w-6 h-6 bg-primary/20 flex items-center justify-center shrink-0 mt-0.5 rounded-full">
-                            <PxIcon icon="user" size={12} className="text-primary" />
-                          </div>
+                          <img src={SUPERVISOR.avatar} alt={SUPERVISOR.name} className="w-6 h-6 rounded-full object-cover shrink-0 mt-0.5 ring-1 ring-primary/40" />
                         ) : commentAgent ? (
                           <img src={commentAgent.avatar} alt={commentAgent.name} className="w-6 h-6 rounded-full object-cover shrink-0 mt-0.5" />
                         ) : (
@@ -197,7 +197,7 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
                               {isSupervisor ? SUPERVISOR.name : commentAgent?.name || c.author}
                             </span>
                             {isSupervisor && (
-                              <span className="text-[9px] px-1 py-0.5 bg-primary/20 text-primary font-medium uppercase tracking-wider">Human</span>
+                              <span className="text-[9px] px-1 py-0.5 bg-primary/20 text-primary font-medium uppercase tracking-wider">Supervisor</span>
                             )}
                             <span className="text-[10px] text-muted-foreground">{c.time}</span>
                           </div>
@@ -209,7 +209,7 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
                   <div className="flex gap-2 mt-3 pt-3 border-t border-border">
                     <input
                       type="text"
-                      placeholder="Add a comment as Supervisor..."
+                      placeholder="Add a comment as Yahaya M..."
                       value={commentText}
                       onChange={(e) => setCommentText(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handlePostComment()}
