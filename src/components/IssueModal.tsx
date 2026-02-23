@@ -15,7 +15,9 @@ const priorityConfig: Record<string, { icon: string; cls: string; label: string 
   low: { icon: "circle", cls: "text-muted-foreground", label: "Low" },
 };
 
-const mockComments = [
+const SUPERVISOR = { id: "supervisor", name: "Supervisor", color: "text-primary" };
+
+const initialComments = [
   { author: "vlad", text: "Started working on the core implementation. The OT algorithm needs careful handling of concurrent edits.", time: "2h ago" },
   { author: "ivar", text: "Updated the acceptance criteria based on user feedback from the beta group.", time: "4h ago" },
   { author: "bjorn", text: "Infrastructure is ready for the new service. Deployed staging environment.", time: "6h ago" },
@@ -32,6 +34,16 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
   const [showReassign, setShowReassign] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [activeTab, setActiveTab] = useState<"comments" | "activity">("comments");
+  const [comments, setComments] = useState(initialComments);
+
+  const handlePostComment = () => {
+    if (!commentText.trim()) return;
+    setComments((prev) => [
+      { author: "supervisor", text: commentText.trim(), time: "Just now" },
+      ...prev,
+    ]);
+    setCommentText("");
+  };
 
   const agent = agents.find((a) => a.id === card.assignee);
   const prio = priorityConfig[card.priority];
@@ -163,11 +175,16 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
             <div className="px-5 py-3">
               {activeTab === "comments" ? (
                 <div className="space-y-3">
-                  {mockComments.map((c, i) => {
-                    const commentAgent = agents.find((a) => a.id === c.author);
+                {comments.map((c, i) => {
+                    const isSupervisor = c.author === "supervisor";
+                    const commentAgent = !isSupervisor ? agents.find((a) => a.id === c.author) : null;
                     return (
-                      <div key={i} className="flex gap-3">
-                        {commentAgent ? (
+                      <div key={i} className={`flex gap-3 ${isSupervisor ? "bg-primary/5 -mx-2 px-2 py-2 border-l-2 border-primary/40" : ""}`}>
+                        {isSupervisor ? (
+                          <div className="w-6 h-6 bg-primary/20 flex items-center justify-center shrink-0 mt-0.5 rounded-full">
+                            <PxIcon icon="user" size={12} className="text-primary" />
+                          </div>
+                        ) : commentAgent ? (
                           <img src={commentAgent.avatar} alt={commentAgent.name} className="w-6 h-6 rounded-full object-cover shrink-0 mt-0.5" />
                         ) : (
                           <div className="w-6 h-6 bg-accent flex items-center justify-center shrink-0 mt-0.5">
@@ -176,9 +193,12 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className={`text-xs font-medium ${commentAgent?.color || "text-foreground"}`}>
-                              {commentAgent?.name || c.author}
+                            <span className={`text-xs font-medium ${isSupervisor ? SUPERVISOR.color : commentAgent?.color || "text-foreground"}`}>
+                              {isSupervisor ? SUPERVISOR.name : commentAgent?.name || c.author}
                             </span>
+                            {isSupervisor && (
+                              <span className="text-[9px] px-1 py-0.5 bg-primary/20 text-primary font-medium uppercase tracking-wider">Human</span>
+                            )}
                             <span className="text-[10px] text-muted-foreground">{c.time}</span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{c.text}</p>
@@ -189,12 +209,13 @@ export default function IssueModal({ card, onClose, onReassign }: Props) {
                   <div className="flex gap-2 mt-3 pt-3 border-t border-border">
                     <input
                       type="text"
-                      placeholder="Add a comment..."
+                      placeholder="Add a comment as Supervisor..."
                       value={commentText}
                       onChange={(e) => setCommentText(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handlePostComment()}
                       className="flex-1 bg-muted border border-border px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground outline-none"
                     />
-                    <button className="px-3 py-2 bg-foreground text-background text-xs hover:bg-foreground/90">
+                    <button onClick={handlePostComment} className="px-3 py-2 bg-foreground text-background text-xs hover:bg-foreground/90">
                       <PxIcon icon="mail" size={12} />
                     </button>
                   </div>

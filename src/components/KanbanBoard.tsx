@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { agents, type KanbanCard as CardType, type KanbanColumn, projectColumns } from "@/data/kanban-data";
 import { projectViewData } from "@/data/project-data";
@@ -7,6 +7,8 @@ import NewIssueModal from "./NewIssueModal";
 import AgentAssignModal from "./AgentAssignModal";
 import PxIcon from "./PxIcon";
 import { toast } from "sonner";
+
+const columnOrder = ["backlog", "todo", "in_progress", "review", "done"];
 
 const priorityConfig: Record<string, { icon: string; cls: string; bg: string }> = {
   urgent: { icon: "alert", cls: "text-destructive", bg: "bg-destructive/10" },
@@ -31,14 +33,16 @@ const columnAccent: Record<string, string> = {
   done: "border-t-success",
 };
 
-function KanbanCardItem({ card, onClick }: { card: CardType; onClick: () => void }) {
+function KanbanCardItem({ card, onClick, highlighted }: { card: CardType; onClick: () => void; highlighted?: boolean }) {
   const agent = agents.find((a) => a.id === card.assignee);
   const prio = priorityConfig[card.priority];
 
   return (
     <div
       onClick={onClick}
-      className="bg-card border border-border p-3.5 hover:border-foreground/20 hover:bg-accent/30 transition-all duration-150 cursor-pointer group animate-slide-up"
+      className={`bg-card border border-border p-3.5 hover:border-foreground/20 hover:bg-accent/30 transition-all duration-500 cursor-pointer group animate-slide-up ${
+        highlighted ? "ring-2 ring-success/60 border-success/40 shadow-[0_0_12px_hsl(var(--success)/0.3)]" : ""
+      }`}
     >
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-mono text-muted-foreground">{card.id}</span>
@@ -155,8 +159,62 @@ export default function KanbanBoard({ projectId }: Props) {
   const [viewMode, setViewMode] = useState<"board" | "list">("board");
   const [showNewIssue, setShowNewIssue] = useState(false);
   const [showAssignAgent, setShowAssignAgent] = useState(false);
+  const [highlightedCardId, setHighlightedCardId] = useState<string | null>(null);
 
   const projectPrefix = (projectColumns[projectId]?.[0]?.cards[0]?.id || "NEXUS-000").split("-")[0];
+
+  // Autonomous agent card movement
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCols((prev) => {
+        // Find eligible cards: has assignee, not in "done"
+        const eligible: { card: CardType; colIndex: number }[] = [];
+        prev.forEach((col, colIndex) => {
+          if (col.status === "done") return;
+          col.cards.forEach((card) => {
+            if (card.assignee) eligible.push({ card, colIndex });
+          });
+        });
+        if (eligible.length === 0) return prev;
+
+        const pick = eligible[Math.floor(Math.random() * eligible.length)];
+        const currentStatus = prev[pick.colIndex].status;
+        const currentOrderIndex = columnOrder.indexOf(currentStatus);
+        const nextOrderIndex = currentOrderIndex + 1;
+        if (nextOrderIndex >= columnOrder.length) return prev;
+
+        const nextStatus = columnOrder[nextOrderIndex];
+        const nextColIndex = prev.findIndex((c) => c.status === nextStatus);
+        if (nextColIndex === -1) return prev;
+
+        const agent = agents.find((a) => a.id === pick.card.assignee);
+        const nextCol = prev[nextColIndex];
+
+        // Fire toast outside setState
+        setTimeout(() => {
+          toast(`${agent?.name || "Agent"} moved ${pick.card.id}`, {
+            description: `→ ${nextCol.title}`,
+            icon: "🤖",
+          });
+        }, 0);
+
+        setHighlightedCardId(pick.card.id);
+        setTimeout(() => setHighlightedCardId(null), 2500);
+
+        return prev.map((col, i) => {
+          if (i === pick.colIndex) {
+            return { ...col, cards: col.cards.filter((c) => c.id !== pick.card.id) };
+          }
+          if (i === nextColIndex) {
+            return { ...col, cards: [...col.cards, pick.card] };
+          }
+          return col;
+        });
+      });
+    }, 8000 + Math.random() * 4000);
+
+    return () => clearInterval(interval);
+  }, [projectId]);
 
   const handleNewIssue = (card: CardType, columnId: string) => {
     setCols((prev) =>
@@ -322,7 +380,7 @@ export default function KanbanBoard({ projectId }: Props) {
                                   snapshot.isDragging ? "opacity-90 shadow-lg shadow-background/50" : ""
                                 }`}
                               >
-                                <KanbanCardItem card={card} onClick={() => setSelectedCard(card)} />
+                                <KanbanCardItem card={card} onClick={() => setSelectedCard(card)} highlighted={highlightedCardId === card.id} />
                               </div>
                             )}
                           </Draggable>
