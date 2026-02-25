@@ -10,6 +10,7 @@ import TerminalPanel from "@/components/TerminalPanel";
 import GitPanel from "@/components/GitPanel";
 import DeploymentsPanel from "@/components/DeploymentsPanel";
 import KanbanBoard from "@/components/KanbanBoard";
+import TeamChat from "@/components/TeamChat";
 import TopBar from "@/components/TopBar";
 import CommandPalette from "@/components/CommandPalette";
 import ProfileSettingsPanel from "@/components/ProfileSettingsPanel";
@@ -90,6 +91,8 @@ const Index = () => {
 
   const renderMainContent = () => {
     switch (activeView) {
+      case "chat":
+        return <TeamChat />;
       case "git":
         return <GitPanel projectId={currentProject} />;
       case "deployments":
