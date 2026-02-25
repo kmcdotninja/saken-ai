@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 const navItems = [
   { icon: "layout-sidebar-right", label: "Board", id: "board" },
+  { icon: "message", label: "Team Chat", id: "chat" },
   { icon: "code", label: "Editor", id: "editor" },
   { icon: "git-branch", label: "Git", id: "git" },
   { icon: "cloud-upload", label: "Deployments", id: "deployments" },
