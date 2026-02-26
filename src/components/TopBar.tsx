@@ -36,8 +36,8 @@ function DeployButton() {
         state === "idle"
           ? "bg-success/10 text-success hover:bg-success/20"
           : state === "deploying"
-          ? "bg-warning/10 text-warning cursor-wait"
-          : "bg-success text-background hover:bg-success/90"
+            ? "bg-warning/10 text-warning cursor-wait"
+            : "bg-success text-background hover:bg-success/90"
       }`}
     >
       {state === "idle" && (
@@ -52,7 +52,7 @@ function DeployButton() {
       )}
       {state === "deployed" && (
         <>
-          <PxIcon icon="close" size={12} /> Undeploy
+          <PxIcon icon="close" size={12} /> Unpublish
         </>
       )}
     </button>
@@ -66,18 +66,25 @@ interface Props {
   activeView: string;
   onSearchClick?: () => void;
   onNotificationClick?: () => void;
-  onChatClick?: () => void;
   bellSeverity?: BellSeverity;
   projectId?: string;
   onBranchChange?: (branch: string) => void;
 }
 
-export default function TopBar({ currentBranch, activeView, onSearchClick, onNotificationClick, onChatClick, bellSeverity = "success", projectId, onBranchChange }: Props) {
+export default function TopBar({
+  currentBranch,
+  activeView,
+  onSearchClick,
+  onNotificationClick,
+  bellSeverity = "success",
+  projectId,
+  onBranchChange,
+}: Props) {
   const { theme, toggleTheme } = useTheme();
   const [branchDropdownOpen, setBranchDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const viewData = projectId ? (projectViewData[projectId] || projectViewData["nexus-platform"]) : null;
+  const viewData = projectId ? projectViewData[projectId] || projectViewData["nexus-platform"] : null;
   const branches = viewData?.git.branches.map((b) => b.name) || ["main", "develop", "feat/new-feature"];
 
   useEffect(() => {
@@ -108,13 +115,19 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
           >
             <PxIcon icon="git-branch" size={12} />
             <span className="font-mono">{currentBranch}</span>
-            <PxIcon icon="chevron-down" size={10} className={`transition-transform ${branchDropdownOpen ? "rotate-180" : ""}`} />
+            <PxIcon
+              icon="chevron-down"
+              size={10}
+              className={`transition-transform ${branchDropdownOpen ? "rotate-180" : ""}`}
+            />
           </button>
 
           {branchDropdownOpen && (
             <div className="absolute top-full left-0 mt-1 w-56 bg-popover border border-border shadow-lg z-50 animate-fade-in">
               <div className="px-3 py-2 border-b border-border">
-                <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Switch branch</span>
+                <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+                  Switch branch
+                </span>
               </div>
               <div className="max-h-48 overflow-y-auto py-1">
                 {branches.map((branch) => (
@@ -129,9 +142,7 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
                   >
                     <PxIcon icon="git-branch" size={12} />
                     <span className="font-mono text-xs">{branch}</span>
-                    {branch === currentBranch && (
-                      <PxIcon icon="check" size={12} className="ml-auto text-success" />
-                    )}
+                    {branch === currentBranch && <PxIcon icon="check" size={12} className="ml-auto text-success" />}
                   </button>
                 ))}
               </div>
@@ -141,7 +152,10 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
       </div>
 
       {/* Center: search */}
-      <button onClick={onSearchClick} className="flex items-center gap-2 px-3 py-1.5 bg-muted border border-border text-muted-foreground hover:text-foreground w-80">
+      <button
+        onClick={onSearchClick}
+        className="flex items-center gap-2 px-3 py-1.5 bg-muted border border-border text-muted-foreground hover:text-foreground w-80"
+      >
         <PxIcon icon="search" size={14} />
         <span className="text-xs flex-1 text-left">Search files, issues, commands...</span>
         <kbd className="text-[10px] bg-accent px-1.5 py-0.5 text-muted-foreground">⌘K</kbd>
@@ -149,13 +163,6 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
 
       {/* Right: actions */}
       <div className="flex items-center gap-2">
-        <button
-          onClick={onChatClick}
-          className={`p-2 transition-colors ${activeView === "chat" ? "text-foreground bg-accent" : "text-muted-foreground hover:text-foreground hover:bg-accent"}`}
-          title="Team Chat"
-        >
-          <PxIcon icon="message" size={16} />
-        </button>
         <button
           onClick={toggleTheme}
           className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
@@ -170,10 +177,7 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
           title="Notifications"
         >
           <PxIcon icon="notification" size={16} />
-          <span
-            className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-success"
-            style={{ zIndex: 10 }}
-          />
+          <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-success" style={{ zIndex: 10 }} />
         </button>
       </div>
     </div>
