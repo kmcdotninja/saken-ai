@@ -141,6 +141,7 @@ const Index = () => {
           activeView={activeView}
           onSearchClick={() => setCmdOpen(true)}
           onNotificationClick={() => setNotifOpen(true)}
+          onChatClick={() => setActiveView("chat")}
           bellSeverity={(getUnreadSeverity() as BellSeverity) || "success"}
           projectId={currentProject}
           onBranchChange={setCurrentBranch}

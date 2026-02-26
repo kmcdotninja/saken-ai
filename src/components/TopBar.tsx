@@ -66,12 +66,13 @@ interface Props {
   activeView: string;
   onSearchClick?: () => void;
   onNotificationClick?: () => void;
+  onChatClick?: () => void;
   bellSeverity?: BellSeverity;
   projectId?: string;
   onBranchChange?: (branch: string) => void;
 }
 
-export default function TopBar({ currentBranch, activeView, onSearchClick, onNotificationClick, bellSeverity = "success", projectId, onBranchChange }: Props) {
+export default function TopBar({ currentBranch, activeView, onSearchClick, onNotificationClick, onChatClick, bellSeverity = "success", projectId, onBranchChange }: Props) {
   const { theme, toggleTheme } = useTheme();
   const [branchDropdownOpen, setBranchDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -148,6 +149,13 @@ export default function TopBar({ currentBranch, activeView, onSearchClick, onNot
 
       {/* Right: actions */}
       <div className="flex items-center gap-2">
+        <button
+          onClick={onChatClick}
+          className={`p-2 transition-colors ${activeView === "chat" ? "text-foreground bg-accent" : "text-muted-foreground hover:text-foreground hover:bg-accent"}`}
+          title="Team Chat"
+        >
+          <PxIcon icon="message" size={16} />
+        </button>
         <button
           onClick={toggleTheme}
           className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
