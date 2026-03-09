@@ -856,9 +856,9 @@ export default function TeamChat() {
         </div>
 
         <div className="px-2 py-2">
-          <div className="flex items-center gap-2 px-2 py-1.5 bg-accent/50 text-muted-foreground text-xs">
+          <button onClick={() => setShowSearch(true)} className="w-full flex items-center gap-2 px-2 py-1.5 bg-accent/50 text-muted-foreground text-xs hover:bg-accent hover:text-foreground transition-colors">
             <PxIcon icon="search" size={12} /><span>Search messages...</span>
-          </div>
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-1">
