@@ -986,6 +986,7 @@ export default function TeamChat() {
             {/* Input */}
             <div className="px-4 py-3 border-t border-border relative">
               {showMentionPopup && <MentionAutocomplete query={mentionQuery} onSelect={handleMentionSelect} presences={presences} />}
+              {showEmojiPicker && <EmojiPicker onSelect={(emoji) => setInputText((prev) => prev + emoji)} onClose={() => setShowEmojiPicker(false)} />}
               <div className="flex items-end gap-2 bg-accent/30 border border-border px-3 py-2 focus-within:border-foreground/30 transition-colors">
                 <input type="file" ref={fileInputRef} multiple onChange={handleFileSelect} className="hidden" />
                 <button onClick={() => fileInputRef.current?.click()} className="text-muted-foreground hover:text-foreground shrink-0 pb-0.5" title="Upload files">
