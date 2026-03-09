@@ -66,6 +66,7 @@ interface Props {
   activeView: string;
   onSearchClick?: () => void;
   onNotificationClick?: () => void;
+  onChatClick?: () => void;
   bellSeverity?: BellSeverity;
   projectId?: string;
   onBranchChange?: (branch: string) => void;
@@ -76,6 +77,7 @@ export default function TopBar({
   activeView,
   onSearchClick,
   onNotificationClick,
+  onChatClick,
   bellSeverity = "success",
   projectId,
   onBranchChange,
@@ -169,6 +171,13 @@ export default function TopBar({
           title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
         >
           <PxIcon icon={theme === "dark" ? "sun" : "moon"} size={16} />
+        </button>
+        <button
+          onClick={onChatClick}
+          className={`p-2 transition-colors ${activeView === "chat" ? "text-foreground bg-accent" : "text-muted-foreground hover:text-foreground hover:bg-accent"}`}
+          title="Team Chat"
+        >
+          <PxIcon icon="message" size={16} />
         </button>
         <DeployButton />
         <button
