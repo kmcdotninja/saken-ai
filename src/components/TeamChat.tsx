@@ -833,6 +833,7 @@ export default function TeamChat() {
   const [showNewChannel, setShowNewChannel] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [callState, setCallState] = useState<{ active: boolean; isVideo: boolean }>({ active: false, isVideo: false });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
