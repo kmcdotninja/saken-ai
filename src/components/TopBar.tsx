@@ -172,6 +172,13 @@ export default function TopBar({
         >
           <PxIcon icon={theme === "dark" ? "sun" : "moon"} size={16} />
         </button>
+        <button
+          onClick={onChatClick}
+          className={`p-2 transition-colors ${activeView === "chat" ? "text-foreground bg-accent" : "text-muted-foreground hover:text-foreground hover:bg-accent"}`}
+          title="Team Chat"
+        >
+          <PxIcon icon="message" size={16} />
+        </button>
         <DeployButton />
         <button
           onClick={onNotificationClick}
