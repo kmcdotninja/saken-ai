@@ -66,6 +66,7 @@ interface Props {
   activeView: string;
   onSearchClick?: () => void;
   onNotificationClick?: () => void;
+  onChatClick?: () => void;
   bellSeverity?: BellSeverity;
   projectId?: string;
   onBranchChange?: (branch: string) => void;
