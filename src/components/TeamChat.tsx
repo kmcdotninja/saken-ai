@@ -1063,6 +1063,19 @@ export default function TeamChat() {
 
       {/* New Channel Modal */}
       {showNewChannel && <NewChannelModal onClose={() => setShowNewChannel(false)} onCreate={handleCreateChannel} presences={presences} />}
+
+      {/* Search Panel */}
+      {showSearch && (
+        <SearchPanel
+          allMessages={messages}
+          channels={channels}
+          onClose={() => setShowSearch(false)}
+          onJumpTo={(channelId) => {
+            setActiveChannel(channelId);
+            setUnreadCounts((p) => ({ ...p, [channelId]: 0 }));
+          }}
+        />
+      )}
     </div>
   );
 }
