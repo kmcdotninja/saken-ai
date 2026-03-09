@@ -672,6 +672,147 @@ function SearchPanel({
   );
 }
 
+// ─── Call Overlay ────────────────────────────────────────────────
+function CallOverlay({
+  channelName,
+  isVideo,
+  presences,
+  onEnd,
+}: {
+  channelName: string;
+  isVideo: boolean;
+  presences: UserPresence[];
+  onEnd: () => void;
+}) {
+  const [elapsed, setElapsed] = useState(0);
+  const [muted, setMuted] = useState(false);
+  const [cameraOff, setCameraOff] = useState(!isVideo);
+  const [screenShare, setScreenShare] = useState(false);
+  const [participants, setParticipants] = useState<string[]>(["supervisor"]);
+
+  // Simulate agents joining
+  useEffect(() => {
+    const agentIds = ["vlad", "agnes", "ivar", "bjorn"];
+    const timers: NodeJS.Timeout[] = [];
+    agentIds.forEach((id, i) => {
+      const st = presences.find((p) => p.id === id)?.status;
+      if (st === "online" || st === "idle") {
+        timers.push(setTimeout(() => setParticipants((prev) => prev.includes(id) ? prev : [...prev, id]), 1500 + i * 2000 + Math.random() * 1500));
+      }
+    });
+    return () => timers.forEach(clearTimeout);
+  }, [presences]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setElapsed((s) => s + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md flex flex-col animate-in fade-in-0 duration-200">
+      {/* Header */}
+      <div className="h-14 px-6 flex items-center gap-3 border-b border-border shrink-0">
+        <div className="w-8 h-8 bg-accent flex items-center justify-center">
+          <PxIcon icon={isVideo ? "video" : "headphone"} size={16} className="text-foreground" />
+        </div>
+        <div>
+          <span className="text-sm font-semibold">{isVideo ? "Video" : "Voice"} Call — #{channelName}</span>
+          <span className="text-xs text-muted-foreground ml-3">{formatTime(elapsed)}</span>
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">{participants.length} participant{participants.length !== 1 ? "s" : ""}</span>
+        </div>
+      </div>
+
+      {/* Participant grid */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className={`grid gap-4 w-full max-w-4xl ${participants.length <= 2 ? "grid-cols-2" : participants.length <= 4 ? "grid-cols-2" : "grid-cols-3"}`}>
+          {participants.map((id) => {
+            const info = getAuthorInfo(id);
+            const st = presences.find((p) => p.id === id)?.status || "online";
+            const isSelf = id === "supervisor";
+            const showCam = isVideo && !(isSelf && cameraOff);
+            return (
+              <div key={id} className={`relative aspect-video bg-card border border-border flex flex-col items-center justify-center gap-3 ${isSelf && muted ? "opacity-70" : ""}`}>
+                {showCam ? (
+                  <div className="absolute inset-0 bg-gradient-to-br from-accent/40 to-muted/20 flex items-center justify-center">
+                    <img src={info.avatar} alt={info.name} className="w-20 h-20 rounded-full ring-2 ring-border" />
+                  </div>
+                ) : (
+                  <>
+                    <img src={info.avatar} alt={info.name} className="w-16 h-16 rounded-full" />
+                    {!isVideo && (
+                      <div className="flex gap-1">
+                        {[0, 1, 2, 3].map((j) => (
+                          <div
+                            key={j}
+                            className="w-1 bg-foreground/40 rounded-full animate-pulse"
+                            style={{
+                              height: `${8 + Math.random() * 16}px`,
+                              animationDelay: `${j * 150}ms`,
+                              animationDuration: `${600 + Math.random() * 400}ms`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+                <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-background/80 backdrop-blur-sm px-2 py-1">
+                  <span className={`w-1.5 h-1.5 rounded-full ${statusColors[st]}`} />
+                  <span className="text-[11px] font-medium">{info.name}{isSelf ? " (You)" : ""}</span>
+                  {isSelf && muted && <PxIcon icon="speaker-off" size={10} className="text-destructive" />}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="h-20 flex items-center justify-center gap-3 border-t border-border shrink-0">
+        <button
+          onClick={() => setMuted(!muted)}
+          className={`w-12 h-12 flex items-center justify-center transition-colors ${muted ? "bg-destructive/20 text-destructive border border-destructive/30" : "bg-accent text-foreground border border-border hover:bg-accent/80"}`}
+          title={muted ? "Unmute" : "Mute"}
+        >
+          <PxIcon icon={muted ? "speaker-off" : "speaker"} size={20} />
+        </button>
+        {isVideo && (
+          <button
+            onClick={() => setCameraOff(!cameraOff)}
+            className={`w-12 h-12 flex items-center justify-center transition-colors ${cameraOff ? "bg-destructive/20 text-destructive border border-destructive/30" : "bg-accent text-foreground border border-border hover:bg-accent/80"}`}
+            title={cameraOff ? "Turn on camera" : "Turn off camera"}
+          >
+            <PxIcon icon={cameraOff ? "video-off" : "video"} size={20} />
+          </button>
+        )}
+        <button
+          onClick={() => setScreenShare(!screenShare)}
+          className={`w-12 h-12 flex items-center justify-center transition-colors ${screenShare ? "bg-foreground text-background" : "bg-accent text-foreground border border-border hover:bg-accent/80"}`}
+          title={screenShare ? "Stop sharing" : "Share screen"}
+        >
+          <PxIcon icon="screen-full" size={20} />
+        </button>
+        <div className="w-px h-8 bg-border mx-1" />
+        <button
+          onClick={onEnd}
+          className="w-12 h-12 flex items-center justify-center bg-destructive text-background hover:bg-destructive/80 transition-colors"
+          title="End call"
+        >
+          <PxIcon icon="close" size={20} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main TeamChat ──────────────────────────────────────────────
 export default function TeamChat() {
   const [channels, setChannels] = useState<Channel[]>(defaultChannels);
