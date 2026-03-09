@@ -77,6 +77,7 @@ export default function TopBar({
   activeView,
   onSearchClick,
   onNotificationClick,
+  onChatClick,
   bellSeverity = "success",
   projectId,
   onBranchChange,
