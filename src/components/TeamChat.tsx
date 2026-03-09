@@ -1005,7 +1005,7 @@ export default function TeamChat() {
                 />
                 <div className="flex items-center gap-1 shrink-0 pb-0.5">
                   <button onClick={() => { setInputText((prev) => prev + "@"); setShowMentionPopup(true); setMentionQuery(""); inputRef.current?.focus(); }} className="text-muted-foreground hover:text-foreground" title="Mention someone"><PxIcon icon="at" size={16} /></button>
-                  <button className="text-muted-foreground hover:text-foreground"><PxIcon icon="mood-happy" size={16} /></button>
+                  <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className={`text-muted-foreground hover:text-foreground ${showEmojiPicker ? "text-foreground" : ""}`} title="Emoji"><PxIcon icon="mood-happy" size={16} /></button>
                   <button onClick={handleSend} disabled={!inputText.trim() && pendingFiles.length === 0}
                     className="w-7 h-7 flex items-center justify-center bg-foreground text-background disabled:opacity-30 hover:bg-foreground/80 transition-colors ml-1">
                     <PxIcon icon="arrow-right" size={14} />
