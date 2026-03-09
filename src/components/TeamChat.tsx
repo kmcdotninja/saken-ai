@@ -1062,6 +1062,15 @@ export default function TeamChat() {
           <span className="font-semibold text-sm">{currentChannel.category === "direct" ? "" : "#"} {currentChannel.name}</span>
           <span className="text-xs text-muted-foreground hidden sm:block">{currentChannel.description}</span>
           <div className="ml-auto flex items-center gap-1">
+            <button onClick={() => setCallState({ active: true, isVideo: false })}
+              className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="Voice call">
+              <PxIcon icon="headphone" size={16} />
+            </button>
+            <button onClick={() => setCallState({ active: true, isVideo: true })}
+              className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="Video call">
+              <PxIcon icon="video" size={16} />
+            </button>
+            <div className="w-px h-5 bg-border mx-0.5" />
             <button onClick={() => setShowMembers(!showMembers)}
               className={`w-8 h-8 flex items-center justify-center transition-colors ${showMembers ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
               <PxIcon icon="users" size={16} />
