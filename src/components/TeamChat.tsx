@@ -504,6 +504,174 @@ function NewChannelModal({
   );
 }
 
+// ─── Emoji Picker ───────────────────────────────────────────────
+const EMOJI_CATEGORIES: { label: string; emojis: string[] }[] = [
+  { label: "Smileys", emojis: ["😀", "😁", "😂", "🤣", "😃", "😄", "😅", "😆", "😉", "😊", "😋", "😎", "😍", "🥰", "😘", "😗", "😙", "🤗", "🤩", "🤔", "🤨", "😐", "😑", "😶", "🙄", "😏", "😣", "😥", "😮", "🤐", "😯", "😪", "😫", "🥱", "😴", "😌", "😛", "😜", "😝", "🤤", "😒", "😓", "😔", "😕", "🙃", "🤑", "😲"] },
+  { label: "Gestures", emojis: ["👍", "👎", "👌", "✌️", "🤞", "🤟", "🤘", "🤙", "👈", "👉", "👆", "👇", "☝️", "✋", "🤚", "🖐️", "🖖", "👋", "🤝", "🙏", "✍️", "💪", "👏", "🙌", "👐", "🤲", "🤜", "🤛", "✊", "👊"] },
+  { label: "Objects", emojis: ["🔥", "⭐", "💯", "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "💔", "❣️", "💕", "🎉", "🎊", "🏆", "🥇", "🎯", "🚀", "💡", "🔔", "📌", "📎", "✏️", "📝", "💻", "🖥️", "⚡", "✅", "❌", "⚠️", "🐛", "🧪", "🔧", "🔨", "⚙️", "📦", "🗂️", "📊"] },
+  { label: "Flags", emojis: ["🏁", "🚩", "🎌", "🏴", "🏳️", "🇺🇸", "🇬🇧", "🇫🇷", "🇩🇪", "🇯🇵", "🇰🇷", "🇨🇳", "🇮🇳", "🇧🇷", "🇳🇬", "🇿🇦"] },
+];
+
+function EmojiPicker({ onSelect, onClose }: { onSelect: (emoji: string) => void; onClose: () => void }) {
+  const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState(0);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) onClose();
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [onClose]);
+
+  const filteredCategories = search
+    ? EMOJI_CATEGORIES.map((cat) => ({ ...cat, emojis: cat.emojis.filter(() => true) })).filter((c) => c.emojis.length > 0)
+    : EMOJI_CATEGORIES;
+
+  return (
+    <div ref={pickerRef} className="absolute bottom-full right-0 mb-2 w-72 bg-card border border-border shadow-xl z-30 animate-in fade-in-0 slide-in-from-bottom-2 duration-150">
+      <div className="px-2 py-2 border-b border-border">
+        <div className="flex items-center gap-1.5 bg-accent/50 border border-border px-2 py-1">
+          <PxIcon icon="search" size={12} className="text-muted-foreground shrink-0" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search emoji..."
+            className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground"
+            autoFocus
+          />
+        </div>
+      </div>
+      <div className="flex border-b border-border">
+        {EMOJI_CATEGORIES.map((cat, i) => (
+          <button
+            key={cat.label}
+            onClick={() => setActiveCategory(i)}
+            className={`flex-1 py-1.5 text-[10px] font-medium transition-colors ${activeCategory === i ? "text-foreground border-b-2 border-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            {cat.emojis[0]}
+          </button>
+        ))}
+      </div>
+      <div className="h-48 overflow-y-auto p-2">
+        {filteredCategories.map((cat, ci) => (
+          (!search && ci !== activeCategory) ? null : (
+            <div key={cat.label}>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1 mt-1">{cat.label}</p>
+              <div className="grid grid-cols-8 gap-0.5">
+                {cat.emojis.map((emoji) => (
+                  <button
+                    key={emoji}
+                    onClick={() => { onSelect(emoji); onClose(); }}
+                    className="w-7 h-7 flex items-center justify-center text-base hover:bg-accent rounded transition-colors"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Search Panel ───────────────────────────────────────────────
+function SearchPanel({
+  allMessages,
+  channels,
+  onClose,
+  onJumpTo,
+}: {
+  allMessages: Record<string, Message[]>;
+  channels: Channel[];
+  onClose: () => void;
+  onJumpTo: (channelId: string, msgId: string) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  const results = useMemo(() => {
+    if (!query.trim()) return [];
+    const q = query.toLowerCase();
+    const hits: { channel: Channel; msg: Message }[] = [];
+    for (const ch of channels) {
+      const msgs = allMessages[ch.id] || [];
+      for (const msg of msgs) {
+        if (msg.text.toLowerCase().includes(q) || getAuthorInfo(msg.author).name.toLowerCase().includes(q)) {
+          hits.push({ channel: ch, msg });
+        }
+      }
+    }
+    return hits;
+  }, [query, allMessages, channels]);
+
+  const highlightText = (text: string, q: string) => {
+    if (!q.trim()) return text;
+    const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+    const parts = text.split(regex);
+    return parts.map((part, i) =>
+      regex.test(part) ? <mark key={i} className="bg-foreground/20 text-foreground px-0.5">{part}</mark> : part
+    );
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-background/60 backdrop-blur-sm" onClick={onClose}>
+      <div className="w-[560px] max-h-[70vh] bg-card border border-border shadow-2xl flex flex-col animate-in fade-in-0 zoom-in-95 duration-150" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
+          <PxIcon icon="search" size={16} className="text-muted-foreground shrink-0" />
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search messages across all channels..."
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
+          <kbd className="text-[10px] text-muted-foreground bg-accent px-1.5 py-0.5">ESC</kbd>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><PxIcon icon="close" size={14} /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {!query.trim() ? (
+            <div className="px-4 py-8 text-center text-xs text-muted-foreground">Type to search across all channels and direct messages</div>
+          ) : results.length === 0 ? (
+            <div className="px-4 py-8 text-center text-xs text-muted-foreground">No results for "{query}"</div>
+          ) : (
+            <div>
+              <div className="px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold border-b border-border">
+                {results.length} result{results.length !== 1 ? "s" : ""}
+              </div>
+              {results.map(({ channel, msg }) => {
+                const author = getAuthorInfo(msg.author);
+                return (
+                  <button
+                    key={msg.id}
+                    onClick={() => { onJumpTo(channel.id, msg.id); onClose(); }}
+                    className="w-full flex items-start gap-3 px-4 py-3 hover:bg-accent/50 transition-colors text-left border-b border-border last:border-0"
+                  >
+                    <img src={author.avatar} alt={author.name} className="w-7 h-7 rounded-full shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-xs font-semibold text-foreground">{author.name}</span>
+                        <span className="text-[10px] text-muted-foreground">in {channel.category === "direct" ? "" : "#"}{channel.name}</span>
+                        <span className="text-[10px] text-muted-foreground ml-auto">{msg.time}</span>
+                      </div>
+                      <p className="text-xs text-foreground/80 truncate">{highlightText(msg.text.replace(/\*\*/g, "").replace(/`/g, ""), query)}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main TeamChat ──────────────────────────────────────────────
 export default function TeamChat() {
   const [channels, setChannels] = useState<Channel[]>(defaultChannels);
