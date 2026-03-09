@@ -1227,6 +1227,16 @@ export default function TeamChat() {
           }}
         />
       )}
+
+      {/* Call Overlay */}
+      {callState.active && (
+        <CallOverlay
+          channelName={currentChannel.name}
+          isVideo={callState.isVideo}
+          presences={presences}
+          onEnd={() => setCallState({ active: false, isVideo: false })}
+        />
+      )}
     </div>
   );
 }
