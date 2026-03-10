@@ -32,12 +32,12 @@ function DeployButton() {
     <button
       onClick={handleClick}
       disabled={state === "deploying"}
-      className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs transition-all duration-300 ${
+      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all duration-300 ${
         state === "idle"
-          ? "bg-success/10 text-success hover:bg-success/20"
+          ? "bg-success/10 text-success hover:bg-success/20 border border-success/20"
           : state === "deploying"
-            ? "bg-warning/10 text-warning cursor-wait"
-            : "bg-success text-background hover:bg-success/90"
+            ? "bg-warning/10 text-warning cursor-wait border border-warning/20"
+            : "bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/30"
       }`}
     >
       {state === "idle" && (
