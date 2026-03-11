@@ -988,6 +988,43 @@ export default function TeamChat() {
     setActiveChannel(name);
   };
 
+  // Edit message
+  const handleEditStart = useCallback((msg: Message) => {
+    setEditingMsg(msg);
+    setEditText(msg.text);
+  }, []);
+
+  const handleEditSave = useCallback(() => {
+    if (!editingMsg || !editText.trim()) return;
+    setMessages((prev) => {
+      const channelMsgs = [...(prev[activeChannel] || [])];
+      const idx = channelMsgs.findIndex((m) => m.id === editingMsg.id);
+      if (idx === -1) return prev;
+      channelMsgs[idx] = { ...channelMsgs[idx], text: editText, edited: true } as any;
+      return { ...prev, [activeChannel]: channelMsgs };
+    });
+    setEditingMsg(null);
+    setEditText("");
+  }, [editingMsg, editText, activeChannel]);
+
+  // Delete message
+  const handleDeleteConfirm = useCallback(() => {
+    if (!deletingMsg) return;
+    setMessages((prev) => {
+      const channelMsgs = (prev[activeChannel] || []).filter((m) => m.id !== deletingMsg.id);
+      return { ...prev, [activeChannel]: channelMsgs };
+    });
+    setDeletingMsg(null);
+  }, [deletingMsg, activeChannel]);
+
+  // Agent join call toast
+  const handleAgentJoinCall = useCallback((agentName: string) => {
+    toast({
+      title: `🔊 ${agentName} joined the call`,
+      description: "Connected to voice channel",
+    });
+  }, [toast]);
+
   // Drag & Drop
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragOver(true); };
   const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragOver(false); };
