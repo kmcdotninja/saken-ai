@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import PxIcon from "./PxIcon";
+import { useToast } from "@/hooks/use-toast";
 import { agents } from "@/data/kanban-data";
 import avatarYahaya from "@/assets/avatar-yahaya.png";
 
@@ -228,6 +229,8 @@ function MessageBubble({
   sameAuthor,
   onReaction,
   onThreadClick,
+  onEdit,
+  onDelete,
   showThread = true,
   presences,
 }: {
@@ -235,11 +238,14 @@ function MessageBubble({
   sameAuthor: boolean;
   onReaction: (id: string, emoji: string) => void;
   onThreadClick?: (msg: Message) => void;
+  onEdit?: (msg: Message) => void;
+  onDelete?: (msg: Message) => void;
   showThread?: boolean;
   presences?: UserPresence[];
 }) {
   const author = getAuthorInfo(msg.author);
   const status = presences?.find((p) => p.id === msg.author)?.status || "offline";
+  const isSupervisor = msg.author === "supervisor";
 
   return (
     <div className={`group flex gap-3 py-1 px-2 -mx-2 hover:bg-accent/40 transition-colors ${sameAuthor ? "mt-0" : "mt-3"} ${msg.pinned ? "border-l-2 border-muted-foreground/40 bg-accent/20" : ""}`}>
@@ -255,13 +261,14 @@ function MessageBubble({
         {!sameAuthor && (
           <div className="flex items-center gap-2 mb-0.5">
             <span className="text-sm font-semibold text-foreground">{author.name}</span>
-            {msg.author === "supervisor" ? (
+            {isSupervisor ? (
               <span className="text-[9px] px-1.5 py-0.5 bg-accent text-muted-foreground font-semibold uppercase tracking-wider">Supervisor</span>
             ) : (
               <span className="text-[9px] px-1.5 py-0.5 bg-accent text-muted-foreground font-medium uppercase tracking-wider">{"role" in author ? (author as any).role : "Agent"}</span>
             )}
             <span className="text-[10px] text-muted-foreground">{msg.time}</span>
             {msg.pinned && <PxIcon icon="pin" size={10} className="text-muted-foreground" />}
+            {(msg as any).edited && <span className="text-[10px] text-muted-foreground italic">(edited)</span>}
           </div>
         )}
         <div className="text-sm text-foreground/90">{renderMarkdown(msg.text)}</div>
@@ -301,6 +308,12 @@ function MessageBubble({
         <button onClick={() => onReaction(msg.id, "👍")} className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent"><span className="text-xs">👍</span></button>
         {showThread && (
           <button onClick={() => onThreadClick?.(msg)} className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent"><PxIcon icon="message" size={12} /></button>
+        )}
+        {isSupervisor && onEdit && (
+          <button onClick={() => onEdit(msg)} className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent" title="Edit"><PxIcon icon="edit" size={12} /></button>
+        )}
+        {isSupervisor && onDelete && (
+          <button onClick={() => onDelete(msg)} className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10" title="Delete"><PxIcon icon="trash" size={12} /></button>
         )}
       </div>
     </div>
@@ -678,11 +691,13 @@ function CallOverlay({
   isVideo,
   presences,
   onEnd,
+  onAgentJoin,
 }: {
   channelName: string;
   isVideo: boolean;
   presences: UserPresence[];
   onEnd: () => void;
+  onAgentJoin?: (agentName: string) => void;
 }) {
   const [elapsed, setElapsed] = useState(0);
   const [muted, setMuted] = useState(false);
@@ -697,11 +712,18 @@ function CallOverlay({
     agentIds.forEach((id, i) => {
       const st = presences.find((p) => p.id === id)?.status;
       if (st === "online" || st === "idle") {
-        timers.push(setTimeout(() => setParticipants((prev) => prev.includes(id) ? prev : [...prev, id]), 1500 + i * 2000 + Math.random() * 1500));
+        timers.push(setTimeout(() => {
+          setParticipants((prev) => {
+            if (prev.includes(id)) return prev;
+            const info = getAuthorInfo(id);
+            onAgentJoin?.(info.name);
+            return [...prev, id];
+          });
+        }, 1500 + i * 2000 + Math.random() * 1500));
       }
     });
     return () => timers.forEach(clearTimeout);
-  }, [presences]);
+  }, [presences, onAgentJoin]);
 
   useEffect(() => {
     const timer = setInterval(() => setElapsed((s) => s + 1), 1000);
@@ -767,7 +789,7 @@ function CallOverlay({
                 <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-background/80 backdrop-blur-sm px-2 py-1">
                   <span className={`w-1.5 h-1.5 rounded-full ${statusColors[st]}`} />
                   <span className="text-[11px] font-medium">{info.name}{isSelf ? " (You)" : ""}</span>
-                  {isSelf && muted && <PxIcon icon="speaker-off" size={10} className="text-destructive" />}
+                  {isSelf && muted && <PxIcon icon="volume-x" size={10} className="text-destructive" />}
                 </div>
               </div>
             );
@@ -782,7 +804,7 @@ function CallOverlay({
           className={`w-12 h-12 flex items-center justify-center transition-colors ${muted ? "bg-destructive/20 text-destructive border border-destructive/30" : "bg-accent text-foreground border border-border hover:bg-accent/80"}`}
           title={muted ? "Unmute" : "Mute"}
         >
-          <PxIcon icon={muted ? "speaker-off" : "speaker"} size={20} />
+          <PxIcon icon={muted ? "volume-x" : "volume"} size={20} />
         </button>
         {isVideo && (
           <button
@@ -798,12 +820,12 @@ function CallOverlay({
           className={`w-12 h-12 flex items-center justify-center transition-colors ${screenShare ? "bg-foreground text-background" : "bg-accent text-foreground border border-border hover:bg-accent/80"}`}
           title={screenShare ? "Stop sharing" : "Share screen"}
         >
-          <PxIcon icon="screen-full" size={20} />
+          <PxIcon icon="cast" size={20} />
         </button>
         <div className="w-px h-8 bg-border mx-1" />
         <button
           onClick={onEnd}
-          className="w-12 h-12 flex items-center justify-center bg-destructive text-background hover:bg-destructive/80 transition-colors"
+          className="w-12 h-12 flex items-center justify-center bg-destructive text-destructive-foreground hover:bg-destructive/80 transition-colors"
           title="End call"
         >
           <PxIcon icon="close" size={20} />
@@ -834,6 +856,10 @@ export default function TeamChat() {
   const [showSearch, setShowSearch] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [callState, setCallState] = useState<{ active: boolean; isVideo: boolean }>({ active: false, isVideo: false });
+  const [editingMsg, setEditingMsg] = useState<Message | null>(null);
+  const [editText, setEditText] = useState("");
+  const [deletingMsg, setDeletingMsg] = useState<Message | null>(null);
+  const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -961,6 +987,43 @@ export default function TeamChat() {
     setUnreadCounts((prev) => ({ ...prev, [name]: 0 }));
     setActiveChannel(name);
   };
+
+  // Edit message
+  const handleEditStart = useCallback((msg: Message) => {
+    setEditingMsg(msg);
+    setEditText(msg.text);
+  }, []);
+
+  const handleEditSave = useCallback(() => {
+    if (!editingMsg || !editText.trim()) return;
+    setMessages((prev) => {
+      const channelMsgs = [...(prev[activeChannel] || [])];
+      const idx = channelMsgs.findIndex((m) => m.id === editingMsg.id);
+      if (idx === -1) return prev;
+      channelMsgs[idx] = { ...channelMsgs[idx], text: editText, edited: true } as any;
+      return { ...prev, [activeChannel]: channelMsgs };
+    });
+    setEditingMsg(null);
+    setEditText("");
+  }, [editingMsg, editText, activeChannel]);
+
+  // Delete message
+  const handleDeleteConfirm = useCallback(() => {
+    if (!deletingMsg) return;
+    setMessages((prev) => {
+      const channelMsgs = (prev[activeChannel] || []).filter((m) => m.id !== deletingMsg.id);
+      return { ...prev, [activeChannel]: channelMsgs };
+    });
+    setDeletingMsg(null);
+  }, [deletingMsg, activeChannel]);
+
+  // Agent join call toast
+  const handleAgentJoinCall = useCallback((agentName: string) => {
+    toast({
+      title: `🔊 ${agentName} joined the call`,
+      description: "Connected to voice channel",
+    });
+  }, [toast]);
 
   // Drag & Drop
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragOver(true); };
@@ -1110,6 +1173,8 @@ export default function TeamChat() {
                     sameAuthor={!!prevMsg && prevMsg.author === msg.author}
                     onReaction={handleReaction}
                     onThreadClick={(m) => { setThreadMsg(m); setShowPinned(false); }}
+                    onEdit={handleEditStart}
+                    onDelete={(m) => setDeletingMsg(m)}
                     presences={presences}
                   />
                 );
@@ -1235,7 +1300,54 @@ export default function TeamChat() {
           isVideo={callState.isVideo}
           presences={presences}
           onEnd={() => setCallState({ active: false, isVideo: false })}
+          onAgentJoin={handleAgentJoinCall}
         />
+      )}
+
+      {/* Edit Message Modal */}
+      {editingMsg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm" onClick={() => setEditingMsg(null)}>
+          <div className="w-[440px] bg-card border border-border shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Edit Message</h3>
+              <button onClick={() => setEditingMsg(null)} className="text-muted-foreground hover:text-foreground"><PxIcon icon="close" size={14} /></button>
+            </div>
+            <div className="px-4 py-4">
+              <textarea
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                className="w-full bg-accent/30 border border-border px-3 py-2 text-sm outline-none focus:border-foreground/30 transition-colors resize-none min-h-[80px]"
+                autoFocus
+              />
+            </div>
+            <div className="px-4 py-3 border-t border-border flex justify-end gap-2">
+              <button onClick={() => setEditingMsg(null)} className="px-3 py-1.5 text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">Cancel</button>
+              <button onClick={handleEditSave} disabled={!editText.trim()} className="px-3 py-1.5 text-xs bg-foreground text-background hover:bg-foreground/80 disabled:opacity-30 transition-colors">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deletingMsg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm" onClick={() => setDeletingMsg(null)}>
+          <div className="w-[380px] bg-card border border-border shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-destructive">Delete Message</h3>
+              <button onClick={() => setDeletingMsg(null)} className="text-muted-foreground hover:text-foreground"><PxIcon icon="close" size={14} /></button>
+            </div>
+            <div className="px-4 py-4">
+              <p className="text-sm text-muted-foreground mb-3">Are you sure you want to delete this message? This action cannot be undone.</p>
+              <div className="bg-accent/30 border border-border px-3 py-2">
+                <p className="text-xs text-foreground/80 line-clamp-3">{deletingMsg.text}</p>
+              </div>
+            </div>
+            <div className="px-4 py-3 border-t border-border flex justify-end gap-2">
+              <button onClick={() => setDeletingMsg(null)} className="px-3 py-1.5 text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">Cancel</button>
+              <button onClick={handleDeleteConfirm} className="px-3 py-1.5 text-xs bg-destructive text-destructive-foreground hover:bg-destructive/80 transition-colors">Delete</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
