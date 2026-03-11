@@ -1300,7 +1300,54 @@ export default function TeamChat() {
           isVideo={callState.isVideo}
           presences={presences}
           onEnd={() => setCallState({ active: false, isVideo: false })}
+          onAgentJoin={handleAgentJoinCall}
         />
+      )}
+
+      {/* Edit Message Modal */}
+      {editingMsg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm" onClick={() => setEditingMsg(null)}>
+          <div className="w-[440px] bg-card border border-border shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Edit Message</h3>
+              <button onClick={() => setEditingMsg(null)} className="text-muted-foreground hover:text-foreground"><PxIcon icon="close" size={14} /></button>
+            </div>
+            <div className="px-4 py-4">
+              <textarea
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                className="w-full bg-accent/30 border border-border px-3 py-2 text-sm outline-none focus:border-foreground/30 transition-colors resize-none min-h-[80px]"
+                autoFocus
+              />
+            </div>
+            <div className="px-4 py-3 border-t border-border flex justify-end gap-2">
+              <button onClick={() => setEditingMsg(null)} className="px-3 py-1.5 text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">Cancel</button>
+              <button onClick={handleEditSave} disabled={!editText.trim()} className="px-3 py-1.5 text-xs bg-foreground text-background hover:bg-foreground/80 disabled:opacity-30 transition-colors">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deletingMsg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm" onClick={() => setDeletingMsg(null)}>
+          <div className="w-[380px] bg-card border border-border shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-destructive">Delete Message</h3>
+              <button onClick={() => setDeletingMsg(null)} className="text-muted-foreground hover:text-foreground"><PxIcon icon="close" size={14} /></button>
+            </div>
+            <div className="px-4 py-4">
+              <p className="text-sm text-muted-foreground mb-3">Are you sure you want to delete this message? This action cannot be undone.</p>
+              <div className="bg-accent/30 border border-border px-3 py-2">
+                <p className="text-xs text-foreground/80 line-clamp-3">{deletingMsg.text}</p>
+              </div>
+            </div>
+            <div className="px-4 py-3 border-t border-border flex justify-end gap-2">
+              <button onClick={() => setDeletingMsg(null)} className="px-3 py-1.5 text-xs border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">Cancel</button>
+              <button onClick={handleDeleteConfirm} className="px-3 py-1.5 text-xs bg-destructive text-destructive-foreground hover:bg-destructive/80 transition-colors">Delete</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
