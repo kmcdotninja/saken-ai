@@ -856,6 +856,10 @@ export default function TeamChat() {
   const [showSearch, setShowSearch] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [callState, setCallState] = useState<{ active: boolean; isVideo: boolean }>({ active: false, isVideo: false });
+  const [editingMsg, setEditingMsg] = useState<Message | null>(null);
+  const [editText, setEditText] = useState("");
+  const [deletingMsg, setDeletingMsg] = useState<Message | null>(null);
+  const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
