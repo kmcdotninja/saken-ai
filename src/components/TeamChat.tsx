@@ -229,6 +229,8 @@ function MessageBubble({
   sameAuthor,
   onReaction,
   onThreadClick,
+  onEdit,
+  onDelete,
   showThread = true,
   presences,
 }: {
@@ -236,11 +238,14 @@ function MessageBubble({
   sameAuthor: boolean;
   onReaction: (id: string, emoji: string) => void;
   onThreadClick?: (msg: Message) => void;
+  onEdit?: (msg: Message) => void;
+  onDelete?: (msg: Message) => void;
   showThread?: boolean;
   presences?: UserPresence[];
 }) {
   const author = getAuthorInfo(msg.author);
   const status = presences?.find((p) => p.id === msg.author)?.status || "offline";
+  const isSupervisor = msg.author === "supervisor";
 
   return (
     <div className={`group flex gap-3 py-1 px-2 -mx-2 hover:bg-accent/40 transition-colors ${sameAuthor ? "mt-0" : "mt-3"} ${msg.pinned ? "border-l-2 border-muted-foreground/40 bg-accent/20" : ""}`}>
@@ -256,13 +261,14 @@ function MessageBubble({
         {!sameAuthor && (
           <div className="flex items-center gap-2 mb-0.5">
             <span className="text-sm font-semibold text-foreground">{author.name}</span>
-            {msg.author === "supervisor" ? (
+            {isSupervisor ? (
               <span className="text-[9px] px-1.5 py-0.5 bg-accent text-muted-foreground font-semibold uppercase tracking-wider">Supervisor</span>
             ) : (
               <span className="text-[9px] px-1.5 py-0.5 bg-accent text-muted-foreground font-medium uppercase tracking-wider">{"role" in author ? (author as any).role : "Agent"}</span>
             )}
             <span className="text-[10px] text-muted-foreground">{msg.time}</span>
             {msg.pinned && <PxIcon icon="pin" size={10} className="text-muted-foreground" />}
+            {(msg as any).edited && <span className="text-[10px] text-muted-foreground italic">(edited)</span>}
           </div>
         )}
         <div className="text-sm text-foreground/90">{renderMarkdown(msg.text)}</div>
@@ -302,6 +308,12 @@ function MessageBubble({
         <button onClick={() => onReaction(msg.id, "👍")} className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent"><span className="text-xs">👍</span></button>
         {showThread && (
           <button onClick={() => onThreadClick?.(msg)} className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent"><PxIcon icon="message" size={12} /></button>
+        )}
+        {isSupervisor && onEdit && (
+          <button onClick={() => onEdit(msg)} className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent" title="Edit"><PxIcon icon="edit" size={12} /></button>
+        )}
+        {isSupervisor && onDelete && (
+          <button onClick={() => onDelete(msg)} className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10" title="Delete"><PxIcon icon="trash" size={12} /></button>
         )}
       </div>
     </div>
