@@ -1173,6 +1173,8 @@ export default function TeamChat() {
                     sameAuthor={!!prevMsg && prevMsg.author === msg.author}
                     onReaction={handleReaction}
                     onThreadClick={(m) => { setThreadMsg(m); setShowPinned(false); }}
+                    onEdit={handleEditStart}
+                    onDelete={(m) => setDeletingMsg(m)}
                     presences={presences}
                   />
                 );
