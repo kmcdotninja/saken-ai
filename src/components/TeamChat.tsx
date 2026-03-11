@@ -691,11 +691,13 @@ function CallOverlay({
   isVideo,
   presences,
   onEnd,
+  onAgentJoin,
 }: {
   channelName: string;
   isVideo: boolean;
   presences: UserPresence[];
   onEnd: () => void;
+  onAgentJoin?: (agentName: string) => void;
 }) {
   const [elapsed, setElapsed] = useState(0);
   const [muted, setMuted] = useState(false);
@@ -710,11 +712,18 @@ function CallOverlay({
     agentIds.forEach((id, i) => {
       const st = presences.find((p) => p.id === id)?.status;
       if (st === "online" || st === "idle") {
-        timers.push(setTimeout(() => setParticipants((prev) => prev.includes(id) ? prev : [...prev, id]), 1500 + i * 2000 + Math.random() * 1500));
+        timers.push(setTimeout(() => {
+          setParticipants((prev) => {
+            if (prev.includes(id)) return prev;
+            const info = getAuthorInfo(id);
+            onAgentJoin?.(info.name);
+            return [...prev, id];
+          });
+        }, 1500 + i * 2000 + Math.random() * 1500));
       }
     });
     return () => timers.forEach(clearTimeout);
-  }, [presences]);
+  }, [presences, onAgentJoin]);
 
   useEffect(() => {
     const timer = setInterval(() => setElapsed((s) => s + 1), 1000);
@@ -780,7 +789,7 @@ function CallOverlay({
                 <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-background/80 backdrop-blur-sm px-2 py-1">
                   <span className={`w-1.5 h-1.5 rounded-full ${statusColors[st]}`} />
                   <span className="text-[11px] font-medium">{info.name}{isSelf ? " (You)" : ""}</span>
-                  {isSelf && muted && <PxIcon icon="speaker-off" size={10} className="text-destructive" />}
+                  {isSelf && muted && <PxIcon icon="volume-x" size={10} className="text-destructive" />}
                 </div>
               </div>
             );
@@ -795,7 +804,7 @@ function CallOverlay({
           className={`w-12 h-12 flex items-center justify-center transition-colors ${muted ? "bg-destructive/20 text-destructive border border-destructive/30" : "bg-accent text-foreground border border-border hover:bg-accent/80"}`}
           title={muted ? "Unmute" : "Mute"}
         >
-          <PxIcon icon={muted ? "speaker-off" : "speaker"} size={20} />
+          <PxIcon icon={muted ? "volume-x" : "volume"} size={20} />
         </button>
         {isVideo && (
           <button
@@ -811,12 +820,12 @@ function CallOverlay({
           className={`w-12 h-12 flex items-center justify-center transition-colors ${screenShare ? "bg-foreground text-background" : "bg-accent text-foreground border border-border hover:bg-accent/80"}`}
           title={screenShare ? "Stop sharing" : "Share screen"}
         >
-          <PxIcon icon="screen-full" size={20} />
+          <PxIcon icon="cast" size={20} />
         </button>
         <div className="w-px h-8 bg-border mx-1" />
         <button
           onClick={onEnd}
-          className="w-12 h-12 flex items-center justify-center bg-destructive text-background hover:bg-destructive/80 transition-colors"
+          className="w-12 h-12 flex items-center justify-center bg-destructive text-destructive-foreground hover:bg-destructive/80 transition-colors"
           title="End call"
         >
           <PxIcon icon="close" size={20} />
