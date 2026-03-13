@@ -4,6 +4,52 @@ import { useToast } from "@/hooks/use-toast";
 import { agents } from "@/data/kanban-data";
 import avatarYahaya from "@/assets/avatar-yahaya.png";
 
+// ─── Notification Sound (Web Audio API) ─────────────────────────
+function playNotificationSound(type: "message" | "join" = "message") {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    if (type === "message") {
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(1047, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.25);
+    } else {
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(660, ctx.currentTime);
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+      osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.35);
+    }
+  } catch (e) {
+    // Audio not supported
+  }
+}
+
+// ─── Desktop Notifications ──────────────────────────────────────
+function sendDesktopNotification(title: string, body: string, icon?: string) {
+  if (!("Notification" in window)) return;
+  if (Notification.permission === "granted") {
+    new Notification(title, { body, icon, silent: true });
+  } else if (Notification.permission !== "denied") {
+    Notification.requestPermission().then((perm) => {
+      if (perm === "granted") {
+        new Notification(title, { body, icon, silent: true });
+      }
+    });
+  }
+}
+
 interface Message {
   id: string;
   author: string;
@@ -350,7 +396,11 @@ function ThreadPanel({
     setTimeout(() => {
       setTypingAgents([]);
       const responses = ["Good point, I'll look into that.", "Agreed! Updating now.", "Was thinking the same.", "On it!"];
-      setReplies((prev) => [...prev, { id: `tr-${Date.now() + 1}`, author: responderId, text: responses[Math.floor(Math.random() * responses.length)], time: nowTime() }]);
+      const respText = responses[Math.floor(Math.random() * responses.length)];
+      const responderInfo = getAuthorInfo(responderId);
+      setReplies((prev) => [...prev, { id: `tr-${Date.now() + 1}`, author: responderId, text: respText, time: nowTime() }]);
+      playNotificationSound("message");
+      sendDesktopNotification(`${responderInfo.name} replied in thread`, respText, responderInfo.avatar);
     }, 1500 + Math.random() * 2000);
   };
 
@@ -869,6 +919,13 @@ export default function TeamChat() {
     return counts;
   });
 
+  // Request desktop notification permission on mount
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
   // Simulate random status changes
   useEffect(() => {
     const interval = setInterval(() => {
@@ -946,10 +1003,14 @@ export default function TeamChat() {
         "Thanks for the heads up.",
         "Already on it! Pushing a commit shortly.",
       ];
+      const respText = responses[Math.floor(Math.random() * responses.length)];
+      const responderInfo = getAuthorInfo(responderId);
       setMessages((prev) => ({
         ...prev,
-        [activeChannel]: [...(prev[activeChannel] || []), { id: `msg-${Date.now() + 1}`, author: responderId, text: responses[Math.floor(Math.random() * responses.length)], time: nowTime() }],
+        [activeChannel]: [...(prev[activeChannel] || []), { id: `msg-${Date.now() + 1}`, author: responderId, text: respText, time: nowTime() }],
       }));
+      playNotificationSound("message");
+      sendDesktopNotification(`${responderInfo.name} in #${activeChannel}`, respText, responderInfo.avatar);
     }, 2000 + Math.random() * 2000);
   }, [inputText, activeChannel, pendingFiles]);
 
@@ -1019,6 +1080,7 @@ export default function TeamChat() {
 
   // Agent join call toast
   const handleAgentJoinCall = useCallback((agentName: string) => {
+    playNotificationSound("join");
     toast({
       title: `🔊 ${agentName} joined the call`,
       description: "Connected to voice channel",
