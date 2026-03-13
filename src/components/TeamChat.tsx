@@ -996,10 +996,14 @@ export default function TeamChat() {
         "Thanks for the heads up.",
         "Already on it! Pushing a commit shortly.",
       ];
+      const respText = responses[Math.floor(Math.random() * responses.length)];
+      const responderInfo = getAuthorInfo(responderId);
       setMessages((prev) => ({
         ...prev,
-        [activeChannel]: [...(prev[activeChannel] || []), { id: `msg-${Date.now() + 1}`, author: responderId, text: responses[Math.floor(Math.random() * responses.length)], time: nowTime() }],
+        [activeChannel]: [...(prev[activeChannel] || []), { id: `msg-${Date.now() + 1}`, author: responderId, text: respText, time: nowTime() }],
       }));
+      playNotificationSound("message");
+      sendDesktopNotification(`${responderInfo.name} in #${activeChannel}`, respText, responderInfo.avatar);
     }, 2000 + Math.random() * 2000);
   }, [inputText, activeChannel, pendingFiles]);
 
