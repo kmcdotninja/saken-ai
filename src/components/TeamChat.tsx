@@ -396,7 +396,11 @@ function ThreadPanel({
     setTimeout(() => {
       setTypingAgents([]);
       const responses = ["Good point, I'll look into that.", "Agreed! Updating now.", "Was thinking the same.", "On it!"];
-      setReplies((prev) => [...prev, { id: `tr-${Date.now() + 1}`, author: responderId, text: responses[Math.floor(Math.random() * responses.length)], time: nowTime() }]);
+      const respText = responses[Math.floor(Math.random() * responses.length)];
+      const responderInfo = getAuthorInfo(responderId);
+      setReplies((prev) => [...prev, { id: `tr-${Date.now() + 1}`, author: responderId, text: respText, time: nowTime() }]);
+      playNotificationSound("message");
+      sendDesktopNotification(`${responderInfo.name} replied in thread`, respText, responderInfo.avatar);
     }, 1500 + Math.random() * 2000);
   };
 
