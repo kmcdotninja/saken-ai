@@ -919,6 +919,13 @@ export default function TeamChat() {
     return counts;
   });
 
+  // Request desktop notification permission on mount
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
   // Simulate random status changes
   useEffect(() => {
     const interval = setInterval(() => {
