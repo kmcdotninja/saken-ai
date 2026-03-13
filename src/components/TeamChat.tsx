@@ -1073,6 +1073,7 @@ export default function TeamChat() {
 
   // Agent join call toast
   const handleAgentJoinCall = useCallback((agentName: string) => {
+    playNotificationSound("join");
     toast({
       title: `🔊 ${agentName} joined the call`,
       description: "Connected to voice channel",
